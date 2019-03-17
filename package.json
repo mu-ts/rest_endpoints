@@ -1,0 +1,40 @@
+{
+  "name": "@mu.ts/rest_endpoints",
+  "version": "1.0.0",
+  "description": "Simple REST endpoint and action routing.",
+  "main": "dist/index.js",
+  "author": "matt.filion@gmail.com",
+  "homepage": "https://github.com/mu-ts/rest_endpoints#readme",
+  "scripts": {
+    "lint": "tslint 'src/**/*.ts'",
+    "start": "npm run build:live",
+    "build": "tsc -p .",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mu-ts/rest_endpoints.git"
+  },
+  "keywords": [
+    "AWS",
+    "API Gateway",
+    "rest",
+    "endpoints",
+    "http"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/jeremyosborne/packagejsonexample/blob/master/LICENSE.txt"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/mu-ts/rest_endpoints/issues"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.23",
+    "@types/node": "^11.11.3",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.3333"
+  }
+}
