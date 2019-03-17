@@ -36,5 +36,8 @@
     "@types/node": "^11.11.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
   }
 }

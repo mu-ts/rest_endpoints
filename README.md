@@ -6,10 +6,6 @@ Simple REST endpoint and action routing.
 
 Each endpoint and action combination should be easily encapsulated into its own object. This makes the handling very specific and much easier to manage. However, every endpoint needs to worry about similar concerns. Headers, body structure, errors and COR's.
 
-https://pentest-tools.com/blog/essential-http-security-headers/
-
-TODO: Endpoint mapping needs to be role sensitive!
-
 ```
 import { EndpointRouter } from '@mu-ts/endpoints';
 
@@ -37,9 +33,10 @@ module.export.rest = EndpointRouter.handle;
 
 ## Endpoint Routing
 
-For each function that will be handling a specific 'route' you will need to use the `@endpoint()` decorator. 
-1. First specify the path and action. Each separated by a colon. For example `/users/{user-id}:PATCH`. Required.
-1. Optionally, you can also specify a condition on when this endpoint should execute. This enables you to map multiple functions but have them invoked in different contexts. In the case where there are multiple, the first function that returns an HTTPResponse will halt further event execution. Priority will determine the order.
+For each function that will be handling a specific 'route' you will need to use the `@endpoint()` decorator. It takes 3 arguments, the path:action, condition and priority.
+
+1. Required.`path:action` For example `/users/{user-id}:PATCH`. 
+1. Condition on when this endpoint should execute. Can be a static value, or a function that accepts the body:HTTPBody and optionally event:HTTPEvent arguments.
 1. Lastly, you can specify a priority. This will determine the order that multiple functions for the same endpoint path are executed in.
 
 ```
@@ -86,6 +83,9 @@ public class GetUsersEndpoint {
 @cors(domain)
 
 
+https://pentest-tools.com/blog/essential-http-security-headers/
+
+TODO: Endpoint mapping needs to be role sensitive!
 
 ## Endpoint Serialization
 TODO build decorator for redaction.
