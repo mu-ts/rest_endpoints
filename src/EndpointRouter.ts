@@ -1,11 +1,13 @@
-import { HTTPEvent, HTTPResponse, HTTPBody } from "./Model";
+import { HTTPEvent, HTTPResponse, HTTPBody, HTTPHeaders, HTTPAction } from "./Model";
 import { Context, Callback } from "aws-lambda";
-import { HTTPSerializer, JSONRedactingSerializer } from "./Serialization";
+import { HTTPSerializer, JSONRedactingSerializer } from "./serialization";
+import { EndpointCondition, endpoint, cors, AllowedOrigin } from "./decorators";
 
 interface EndpointRoute {
-  path: string;
+  resource: string;
+  action: string;
   endpoint: Function;
-  condition: Function | boolean;
+  condition?: EndpointCondition;
   priority: number;
 }
 
@@ -15,23 +17,40 @@ interface EndpointRoute {
  */
 export abstract class EndpointRouter {
 
-  public static routes: Array<EndpointRoute> = new Array();
-  public static serializer: HTTPSerializer = new JSONRedactingSerializer();
+  private static routes: Array<EndpointRoute> = new Array();
+  private static serializer: HTTPSerializer = new JSONRedactingSerializer();
 
   private constructor() { }
 
   /**
    * 
-   * @param name of the path to register this function.
-   * @param funktion to execute for the path specified.
+   * @param resource to map this endpoint to.
+   * @param action to map this endpoint to.
+   * @param endpoint function that will take event: HTTPEvent as the first argument 
+   *        and context: LambdaContext as the second argument. It is expected that 
+   *        it will return Promise<HTTPResponse>
+   * @param condition, that if provided, will test if this endpoint should even
+   *        be invoked.
+   * @param priority of this endpoint. A higher value indicates it should be
+   *        executed ahead of other endpoints. Defaults to 0.
+   * 
    */
-  public static register(name: string, funktion: Function, condition?: Function | boolean, priority?: number): void {
+  public static register(resource: string, action: string, endpoint: Function, condition?: EndpointCondition, priority?: number): void {
     EndpointRouter.routes.push({
-      path: name,
-      endpoint: funktion,
-      condition: condition || true,
+      resource: resource,
+      action: action,
+      endpoint: endpoint,
+      condition: condition,
       priority: priority || 0
     });
+  }
+
+  /**
+   * 
+   * @param headers to set on every request.
+   */
+  public static setDefaultHeaders(headers: HTTPHeaders): void {
+    HTTPResponse.setDefaultHeaders(headers);
   }
 
   /**
@@ -41,23 +60,26 @@ export abstract class EndpointRouter {
    * @param callback to execute when completed.
    */
   public static handle(event: HTTPEvent, context: Context, callback: Callback<HTTPResponse>): void {
-    const routePath: string = `${event.resource}:${event.httpMethod}`;
-    const body: HTTPBody | null = EndpointRouter.serializer.deserializeBody(event.body);
+    const body: HTTPBody | undefined = event.body ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
+    console.log("EndpointRouter.routes", { resource: event.resource, httpMethod: event.httpMethod });
     const routeOptions: Array<EndpointRoute> = EndpointRouter.routes
-      .filter((route: EndpointRoute) => route.path === routePath)
-      .filter((route: EndpointRoute) => route.condition)
+      .filter((route: EndpointRoute) => route.resource === event.resource)
+      .filter((route: EndpointRoute) => route.action === event.httpMethod)
       .filter((route: EndpointRoute) => {
-        if (route.condition instanceof Function) {
+        console.log("check condition", route);
+        if (route.condition) {
           return route.condition(body, event);
         }
         return route;
       })
-      .sort((first: EndpointRoute, second: EndpointRoute) => first.priority - second.priority);
+      .sort((first: EndpointRoute, second: EndpointRoute) => second.priority - first.priority);
 
     if (!routeOptions || routeOptions.length === 0) {
       return callback(
         null,
-        new HTTPResponse({ message: 'Action is not implemented at this path.' }, 501)
+        HTTPResponse
+          .setBody({ message: 'Action is not implemented at this path.' })
+          .setStatusCode(501)
           .addHeader('X-REQUEST-ID', event.requestContext.requestId)
       );
     }
@@ -71,72 +93,10 @@ export abstract class EndpointRouter {
       })
     }
 
+
     promiseChain
       .then((response: HTTPResponse | undefined) => callback(null, response))
       .catch((error: any) => callback(error))
 
   }
 }
-
-
-
-
-
-// class GetUsersEndpoint {
-
-//   constructor(){
-//   }
-
-//   @endpoint('/users:GET')
-//   test(event){
-//     console.log("test");
-//     return Promise.resolve(new EndpointResponse(200));
-//   }
-// }
-
-
-// EndpointRouter.handle(
-//   {
-//     body: null,
-//     httpMethod:'GET',
-//     path: '/users',
-//     resource:'/users',
-//     stage: 'dev',
-//     headers: {},
-//     queryStringParameters: {},
-//     pathParameters: {},
-//     requestContext: {
-//       accountId: '123',
-//       resourceId: '321',
-//       requestId: 'xyz123',
-//       authorizer: {
-//         principalId:'',
-//         apiKey:'',
-//         sourceIp:'',
-//         userAgent:''
-//       }
-//     }
-//   },
-
-//   {
-//     callbackWaitsForEmptyEventLoop: true,
-//     functionName: 'x',
-//     functionVersion: 'x',
-//     invokedFunctionArn: 'x',
-//     memoryLimitInMB: 1,
-//     awsRequestId: 'x',
-//     logGroupName: 'x',
-//     logStreamName: 'x',
-//     identity: null,
-//     clientContext: null,
-//     getRemainingTimeInMillis: () => { return 1234 },
-//     done: (error?: Error, result?: any) => { },
-//     fail: (error: Error | string) => { },
-//     succeed: (messageOrObject: any) => { }
-//   },
-
-//   (error:Error, result:any) => {
-//     console.log("result",result);
-//   }
-
-// );

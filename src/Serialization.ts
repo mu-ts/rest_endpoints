@@ -8,7 +8,7 @@ export interface HTTPSerializer {
    * 
    * @param event 
    */
-  deserializeBody(eventBody: string | undefined | null): HTTPBody | null;
+  deserializeBody(eventBody: string | undefined): HTTPBody | undefined;
 
   /**
    * Called to serialize the HTTPBody of a response into a string. Will
@@ -35,8 +35,8 @@ export class JSONRedactingSerializer implements HTTPSerializer {
   constructor() {
   }
 
-  public deserializeBody(eventBody: string | undefined | null): HTTPBody | null {
-    if (!eventBody) return null;
+  public deserializeBody(eventBody: string | undefined): HTTPBody | undefined {
+    if (!eventBody) return undefined;
     return <HTTPBody>JSON.parse(eventBody);
   }
 

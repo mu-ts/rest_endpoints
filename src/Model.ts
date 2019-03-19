@@ -51,23 +51,28 @@ export interface HTTPHeaders {
 }
 
 /**
+ * Expected HTTP Actions for endpoint routing.
+ */
+export enum HTTPAction {
+  GET = "GET",
+  PUT = "PUT",
+  POST = "POST",
+  PATCH = "PATCH",
+  DELETE = "DELETE"
+}
+
+/**
  * Structures the response so that API Gateway can interpret it.
  */
 export class HTTPResponse {
 
-  //TODO rewrite into a builder pattern.
-
-  private body: string;
+  private body: string | undefined;
   private statusCode: number = 200;
   private headers: HTTPHeaders | undefined;
 
   private static _defaultHeaders: HTTPHeaders | {};
 
-  constructor(body?: string | HTTPBody, statusCode?: number) {
-    this.statusCode = statusCode || 200;
-    this.body = typeof body === 'string' ? body : JSON.stringify(body);
-    this.headers = {};
-  }
+  private constructor() { }
 
   /**
    * Ideally you should declare defaults for:
@@ -86,11 +91,31 @@ export class HTTPResponse {
 
   /**
    * 
+   * @param body 
+   */
+  public static setBody(body: string | HTTPBody): HTTPResponse {
+    const response: HTTPResponse = new HTTPResponse();
+    response.setBody(body);
+    return response;
+  }
+
+  /**
+   * 
    * @param body To return to the caller.
    */
   public setBody(body: string | HTTPBody): HTTPResponse {
     this.body = typeof body === 'string' ? body : JSON.stringify(body);
     return this;
+  }
+
+
+  /**
+   * @param statusCode to return the response under, https://en.wikipedia.org/wiki/List_of_HTTP_status_codes. 
+   */
+  public static setStatusCode(statusCode: number): HTTPResponse {
+    const response: HTTPResponse = new HTTPResponse();
+    response.setStatusCode(statusCode);
+    return response;
   }
 
   /**
@@ -103,13 +128,20 @@ export class HTTPResponse {
   }
 
   /**
+   * Returns the current status code.
+   */
+  public getStatusCode(): number {
+    return this.statusCode;
+  }
+
+  /**
    * Add a single new header to the response.
    * 
    * @param name of the header to add.
    * @param value of the header to add.
    */
   public addHeader(name: string, value: string): HTTPResponse {
-    if (!this.headers) this.headers = HTTPResponse._defaultHeaders;
+    if (!this.headers) this.headers = HTTPResponse._defaultHeaders || {};
     this.headers[name] = value;
     return this;
   }
