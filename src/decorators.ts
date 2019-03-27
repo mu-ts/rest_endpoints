@@ -1,7 +1,8 @@
 import 'reflect-metadata';
-import { HTTPHeaders, HTTPResponse, HTTPEvent, HTTPAction, HTTPBody } from "./Model";
+import {HTTPHeaders, HTTPResponse, HTTPEvent, HTTPAction, HTTPBody, Validation} from "./Model";
 import { EndpointRouter } from './EndpointRouter';
 import { JSONRedactingSerializer } from './Serialization';
+import {version} from "punycode";
 
 export const METADATA_KEY: string = '__MU-TS';
 export const REDACTED_KEY: string = 'redacted';
@@ -68,7 +69,7 @@ export function cors(allowedOrigin: string | AllowedOrigin, allowedActions?: Arr
  * Function interface for the logic that will check if a route
  * should be executed or not.
  */
-export interface EndpointCondition {
+export interface HTTPEventCondition {
   (body: HTTPBody | undefined, event: HTTPEvent): boolean;
 }
 
@@ -76,7 +77,7 @@ export interface EndpointCondition {
  *
  * @param route for this function.
  */
-export function endpoint(path: string, action: HTTPAction | string, condition?: EndpointCondition, priority?: number) {
+export function endpoint(path: string, action: HTTPAction | string, condition?: HTTPEventCondition, priority?: number) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
 
     const targetMethod = descriptor.value;
@@ -84,6 +85,24 @@ export function endpoint(path: string, action: HTTPAction | string, condition?: 
     descriptor.value = function () {
 
       const event: HTTPEvent = arguments[0];
+      const validations: Array<Validation> = arguments[2];
+
+      if (validations) {
+          let validationErrors;
+          validations.forEach(validation => {
+              // TODO right now this is only taking in body. Should we have a wrapper around this that will segment out parts of the event (query params, etc, and run separate validations against each, defined in the file by type?)
+              // FIXME this will overwrite if there are multiple validators, but I think we'll want the ability to have multiple. Make the arrays merge.
+              validationErrors = EndpointRouter.validationHandler.validate(event.body, validation.schema);
+
+          });
+
+          if (validationErrors) {
+              return HTTPResponse
+                  .setBody({ message: validationErrors })
+                  .setStatusCode(400)
+                  .addHeader('X-REQUEST-ID', event.requestContext.requestId);
+          }
+      }
 
       return targetMethod.apply(this, arguments)
         .then((response: HTTPResponse) => {
@@ -100,7 +119,7 @@ export function endpoint(path: string, action: HTTPAction | string, condition?: 
 
     const routeAction = typeof action === 'string' ? action.toUpperCase() : action;
 
-    EndpointRouter.register(path, routeAction.toUpperCase(), descriptor.value, condition, priority)
+    EndpointRouter.register(path, routeAction.toUpperCase(), descriptor.value, descriptor, condition, priority);
 
     return descriptor;
   };

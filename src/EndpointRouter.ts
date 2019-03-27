@@ -1,14 +1,16 @@
-import { HTTPEvent, HTTPResponse, HTTPBody, HTTPHeaders, HTTPAction } from "./Model";
+import {HTTPEvent, HTTPResponse, HTTPBody, HTTPHeaders, HTTPAction, Validation} from "./Model";
 import { Context, Callback } from "aws-lambda";
 import { HTTPSerializer, JSONRedactingSerializer } from "./serialization";
-import { EndpointCondition, endpoint, cors, AllowedOrigin } from "./decorators";
+import { HTTPEventCondition, endpoint, cors, AllowedOrigin } from "./decorators";
 
 interface EndpointRoute {
   resource: string;
   action: string;
   endpoint: Function;
-  condition?: EndpointCondition;
+  condition?: HTTPEventCondition;
   priority: number;
+  validations?: Array<Validation>;
+  descriptor: PropertyDescriptor
 }
 
 /**
@@ -19,6 +21,7 @@ export abstract class EndpointRouter {
 
   private static routes: Array<EndpointRoute> = new Array();
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
+  public static validationHandler: any;
 
   private constructor() { }
 
@@ -29,20 +32,34 @@ export abstract class EndpointRouter {
    * @param endpoint function that will take event: HTTPEvent as the first argument 
    *        and context: LambdaContext as the second argument. It is expected that 
    *        it will return Promise<HTTPResponse>
-   * @param condition, that if provided, will test if this endpoint should even
+   * @param descriptor the property descriptor from the method, used to bind the
+   *        validation back to the endpoint in the handle() phase
+   * @param condition?, that if provided, will test if this endpoint should even
    *        be invoked.
-   * @param priority of this endpoint. A higher value indicates it should be
+   * @param priority? of this endpoint. A higher value indicates it should be
    *        executed ahead of other endpoints. Defaults to 0.
    * 
    */
-  public static register(resource: string, action: string, endpoint: Function, condition?: EndpointCondition, priority?: number): void {
+  public static register(resource: string, action: string, endpoint: Function, descriptor: PropertyDescriptor, condition?: HTTPEventCondition, priority?: number): void {
     EndpointRouter.routes.push({
+      descriptor: descriptor,
       resource: resource,
       action: action,
       endpoint: endpoint,
       condition: condition,
       priority: priority || 0
     });
+  }
+
+  public static attachEndpointValidation(descriptor: PropertyDescriptor, validation: Validation): void {
+    let route = EndpointRouter.routes.find(route => route.descriptor === descriptor);
+    if (route) {
+      if (route.validations) {
+        route.validations.push(validation);
+      } else {
+        route.validations = [validation];
+      }
+    }
   }
 
   /**
@@ -72,6 +89,15 @@ export abstract class EndpointRouter {
         }
         return route;
       })
+      .map((route: EndpointRoute) => {
+        if (route.validations) {
+          route.validations = route.validations.filter((validation) => validation.validatorCondition && validation.validatorCondition(body, event));
+        } else {
+          route.validations = [];
+        }
+        return route;
+
+      })
       .sort((first: EndpointRoute, second: EndpointRoute) => second.priority - first.priority);
 
     if (!routeOptions || routeOptions.length === 0) {
@@ -89,7 +115,7 @@ export abstract class EndpointRouter {
     for (let route of routeOptions) {
       promiseChain = promiseChain.then((response: HTTPResponse | undefined) => {
         if (response) return response;
-        return route.endpoint(event, context)
+        return route.endpoint(event, context, route.validations)
       })
     }
 
@@ -98,5 +124,9 @@ export abstract class EndpointRouter {
       .then((response: HTTPResponse | undefined) => callback(null, response))
       .catch((error: any) => callback(error))
 
+  }
+
+  static attachValidationHandler(validationHandler: any) {
+    EndpointRouter.validationHandler = validationHandler;
   }
 }

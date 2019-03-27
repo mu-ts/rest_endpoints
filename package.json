@@ -38,6 +38,7 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
+    "npm": "^6.9.0",
     "reflect-metadata": "^0.1.13"
   }
 }

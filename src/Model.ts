@@ -1,3 +1,5 @@
+import {HTTPEventCondition} from "./decorators";
+
 export { Handler, Context, Callback } from 'aws-lambda';
 
 /**
@@ -48,6 +50,11 @@ export interface HTTPBody {
  */
 export interface HTTPHeaders {
   [key: string]: string;
+}
+
+export interface Validation {
+  schema: object;
+  validatorCondition?: HTTPEventCondition;
 }
 
 /**

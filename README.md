@@ -34,7 +34,7 @@ const usersService: UsersService = new UsersService();
  * Once an instance is created it registers its endpoints with 
  * the EndpointRouter. Only do it once.
  */
-new GetUsersEndpoint(usersService);
+    new GetUsersEndpoint(usersService);
 
 module.export.rest = EndpointRouter.handle;
 ```
