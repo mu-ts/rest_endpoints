@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Simple REST endpoint and action routing.",
   "main": "dist/index.js",
+  "types" : "dist/index.d.ts",
   "author": "matt.filion@gmail.com",
   "homepage": "https://github.com/mu-ts/rest_endpoints#readme",
   "scripts": {

@@ -88,15 +88,12 @@ export function endpoint(path: string, action: HTTPAction | string, condition?: 
       const validations: Array<Validation> = arguments[2];
 
       if (validations) {
-          let validationErrors;
+          let validationErrors = new Set<string>();
           validations.forEach(validation => {
-              // TODO right now this is only taking in body. Should we have a wrapper around this that will segment out parts of the event (query params, etc, and run separate validations against each, defined in the file by type?)
-              // FIXME this will overwrite if there are multiple validators, but I think we'll want the ability to have multiple. Make the arrays merge.
-              validationErrors = EndpointRouter.validationHandler.validate(event.body, validation.schema);
-
+              validationErrors.add(EndpointRouter.validationHandler.validate(event.body, validation.schema));
           });
 
-          if (validationErrors) {
+          if (validationErrors.size) {
               return HTTPResponse
                   .setBody({ message: validationErrors })
                   .setStatusCode(400)
