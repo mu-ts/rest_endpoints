@@ -29,7 +29,7 @@ publish_task:
     - test_task
   only_if: $BRANCH == "master"
   environment:
-    NPM_TOKEN: ENCRYPTED[1f53dfd5adb2f9b3e99715124a577d15b8d8142c77f11af31afa1c9c062012535d868ee4ef8d120ba8754eb2382e9128]
+    NPM_TOKEN: ENCRYPTED[0c80e17aabeafbdf97bfe0bce75a183319961a3ba181c63bd5a591731d16fc0065a19e0f595b6750d886274bc998b6fd]
   script:
     - npm install
     - npm run build
