@@ -1,6 +1,6 @@
 import { HTTPEvent, HTTPResponse, HTTPBody, HTTPHeaders, HTTPAction, Validation } from './Model';
 import { Context, Callback } from 'aws-lambda';
-import { HTTPSerializer, JSONRedactingSerializer } from './serialization';
+import { HTTPSerializer, JSONRedactingSerializer } from './Serialization';
 import { HTTPEventCondition, endpoint, cors, AllowedOrigin } from './decorators';
 
 interface EndpointRoute {
