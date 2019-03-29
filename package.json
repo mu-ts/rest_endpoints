@@ -13,7 +13,7 @@
     "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "prepare": "npm run build",
     "pretest": "npm run build",
-    "codecov": "nyc report --reporter=json && codecov -f coverage/*.json"
+    "xcodecov": "nyc report --reporter=json && codecov -f coverage/*.json"
   },
   "repository": {
     "type": "git",
@@ -37,9 +37,15 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.23",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
     "@types/node": "^11.11.3",
+    "chai": "^4.2.0",
     "codecov": "^3.2.0",
+    "mocha": "^6.0.2",
     "nyc": "^13.3.0",
+    "source-map-support": "^0.5.11",
+    "ts-node": "^8.0.3",
     "tslint": "^5.14.0",
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.3.3333"
@@ -47,5 +53,37 @@
   "dependencies": {
     "npm": "^6.9.0",
     "reflect-metadata": "^0.1.13"
+  },
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxnyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   }
 }
