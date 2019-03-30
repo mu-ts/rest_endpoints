@@ -39,4 +39,4 @@ publish_task:
     - npm install
     - npm run build
 #    - npx semantic-release
-    - npm publish
+    - npm publish --access public
