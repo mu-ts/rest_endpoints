@@ -3,7 +3,7 @@ container:
 
 lint_task:
   environment:
-    NPM_TOKEN: ENCRYPTED[0c80e17aabeafbdf97bfe0bce75a183319961a3ba181c63bd5a591731d16fc0065a19e0f595b6750d886274bc998b6fd]
+    NPM_TOKEN: ENCRYPTED[b0ddf051c63719920b1022a965ad1f8774328fec15faab9f8a74127fe20a3950f7f9dcc8ea03df4916cfa7c3a574e727]
   node_modules_cache:
     folder: node_modules
     fingerprint_script: cat package-lock.json
@@ -12,7 +12,7 @@ lint_task:
 
 test_task:
   environment:
-    NPM_TOKEN: ENCRYPTED[0c80e17aabeafbdf97bfe0bce75a183319961a3ba181c63bd5a591731d16fc0065a19e0f595b6750d886274bc998b6fd]
+    NPM_TOKEN: ENCRYPTED[b0ddf051c63719920b1022a965ad1f8774328fec15faab9f8a74127fe20a3950f7f9dcc8ea03df4916cfa7c3a574e727]
   node_modules_cache:
     folder: node_modules
     fingerprint_script: cat package-lock.json
@@ -21,7 +21,7 @@ test_task:
 
 coverage_task:
   env:
-    NPM_TOKEN: ENCRYPTED[0c80e17aabeafbdf97bfe0bce75a183319961a3ba181c63bd5a591731d16fc0065a19e0f595b6750d886274bc998b6fd]
+    NPM_TOKEN: ENCRYPTED[b0ddf051c63719920b1022a965ad1f8774328fec15faab9f8a74127fe20a3950f7f9dcc8ea03df4916cfa7c3a574e727]
     CODECOV_TOKEN: ENCRYPTED[cc9756d1a2adf5cc000b12cbf976eeeea9442237b5288f81b5279d23322c6e1f6deb2d4898c60e77f239a218b8ee7fcf]
   script:
     - npm install
@@ -34,7 +34,7 @@ publish_task:
     - test_task
   only_if: $BRANCH == "master"
   environment:
-    NPM_TOKEN: ENCRYPTED[0c80e17aabeafbdf97bfe0bce75a183319961a3ba181c63bd5a591731d16fc0065a19e0f595b6750d886274bc998b6fd]
+    NPM_TOKEN: ENCRYPTED[b0ddf051c63719920b1022a965ad1f8774328fec15faab9f8a74127fe20a3950f7f9dcc8ea03df4916cfa7c3a574e727]
   script:
     - npm install
     - npm run build
