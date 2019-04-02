@@ -36,6 +36,7 @@ publish_task:
   environment:
     NPM_TOKEN: ENCRYPTED[b0ddf051c63719920b1022a965ad1f8774328fec15faab9f8a74127fe20a3950f7f9dcc8ea03df4916cfa7c3a574e727]
   script:
+    - printf "//`node -p \"require('url').parse('https://registry.npmjs.org').host\"`/:_authToken=${NPM_TOKEN}\nregistry=${NPM_REGISTRY_URL:-https://registry.npmjs.org}\n" >> ~/.npmrc
     - npm install
     - npm run build
 #    - npx semantic-release
