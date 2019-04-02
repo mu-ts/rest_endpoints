@@ -1,5 +1,5 @@
 {
-  "name": "@mu.ts/rest_endpoints",
+  "name": "@mu-ts/endpoints",
   "version": "1.0.0",
   "description": "Simple REST endpoint and action routing.",
   "main": "dist/index.js",
