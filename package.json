@@ -13,8 +13,8 @@
     "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "prepare": "npm run build",
     "pretest": "npm run build",
-    "xtest": "mocha -r ts-node/register spec/**/*.spec.ts",
-    "test": "nyc mocha test",
+    "test": "mocha -r ts-node/register spec/**/*.spec.ts",
+    "xtest": "nyc mocha test",
     "codecov": "nyc report --reporter=json && codecov -f coverage/*.json"
   },
   "repository": {
@@ -60,24 +60,5 @@
     "exclude": [
       "test"
     ]
-  },
-  "xxxxxxxxxxxxxxxnyc": {
-    "include": [
-      "src/**/*.ts",
-      "src/**/*.tsx"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text-summary",
-      "html"
-    ],
-    "sourceMap": true,
-    "instrument": true
   }
 }
