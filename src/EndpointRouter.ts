@@ -1,13 +1,16 @@
-import { HTTPEvent, HTTPResponse, HTTPBody, HTTPHeaders, HTTPAction, Validation } from './Model';
-import { Context, Callback } from 'aws-lambda';
-import { HTTPSerializer, JSONRedactingSerializer } from './Serialization';
-import { HTTPEventCondition } from './decorators';
+import { Context, Callback, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { HTTPSerializer } from './HTTPSerializer';
+import { EventCondition } from './EventCondition';
+import { Validation } from './Validation';
+import { HTTPBody } from './HTTPBody';
+import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
+import { JSONRedactingSerializer } from './JSONRedactingSerializer';
 
 interface EndpointRoute {
   resource: string;
   action: string;
   endpoint: Function;
-  condition?: HTTPEventCondition;
+  condition?: EventCondition;
   priority: number;
   validations?: Array<Validation>;
   descriptor: PropertyDescriptor;
@@ -44,7 +47,7 @@ export abstract class EndpointRouter {
     action: string,
     endpoint: Function,
     descriptor: PropertyDescriptor,
-    condition?: HTTPEventCondition,
+    condition?: EventCondition,
     priority?: number
   ): void {
     EndpointRouter.routes.push({
@@ -72,8 +75,8 @@ export abstract class EndpointRouter {
    *
    * @param headers to set on every request.
    */
-  public static setDefaultHeaders(headers: HTTPHeaders): void {
-    HTTPResponse.setDefaultHeaders(headers);
+  public static setDefaultHeaders(headers: { [name: string]: boolean | number | string }): void {
+    HTTPAPIGatewayProxyResult.setDefaultHeaders(headers);
   }
 
   /**
@@ -82,7 +85,7 @@ export abstract class EndpointRouter {
    * @param context of the invocation.
    * @param callback to execute when completed.
    */
-  public static handle(event: HTTPEvent, context: Context, callback: Callback<HTTPResponse>): void {
+  public static handle(event: APIGatewayProxyEvent, context: Context, callback: Callback<APIGatewayProxyResult>): void {
     const body: HTTPBody | undefined = event.body ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
     console.log('EndpointRouter.routes', { resource: event.resource, httpMethod: event.httpMethod });
     const routeOptions: Array<EndpointRoute> = EndpointRouter.routes
@@ -110,23 +113,23 @@ export abstract class EndpointRouter {
     if (!routeOptions || routeOptions.length === 0) {
       return callback(
         undefined,
-        HTTPResponse.setBody({ message: 'Action is not implemented at this path.' })
+        HTTPAPIGatewayProxyResult.setBody({ message: 'Action is not implemented at this path.' })
           .setStatusCode(501)
           .addHeader('X-REQUEST-ID', event.requestContext.requestId)
       );
     }
 
-    let promiseChain = Promise.resolve<HTTPResponse | undefined>(undefined);
+    let promiseChain = Promise.resolve<APIGatewayProxyResult | undefined>(undefined);
 
     for (const route of routeOptions) {
-      promiseChain = promiseChain.then((response: HTTPResponse | undefined) => {
+      promiseChain = promiseChain.then((response: APIGatewayProxyResult | undefined) => {
         if (response) return response;
         return route.endpoint(event, context, route.validations);
       });
     }
 
     promiseChain
-      .then((response: HTTPResponse | undefined) => callback(undefined, response))
+      .then((response: APIGatewayProxyResult | undefined) => callback(undefined, response))
       .catch((error: any) => callback(error));
   }
 

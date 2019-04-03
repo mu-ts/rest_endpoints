@@ -4,7 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2017",
-    "types": ["node"],
+    "types": ["node", "aws-lambda"],
     "allowJs": false,
     "strict": true,
     "alwaysStrict": true,
@@ -18,5 +18,5 @@
     "outDir": "dist",
     "rootDirs": ["src"]
   },
-  "exclude": ["node_modules", "test", ".cirrus.yml", ".prettierrc", "tsconfig.json", "tslint.json", ".git"]
+  "exclude": ["node_modules", "test", ".cirrus.yml", ".prettierrc", "tsconfig.json", "tslint.json", ".git", "dist"]
 }
