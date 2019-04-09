@@ -1,4 +1,4 @@
-import { HTTPAPIGatewayProxyResult, HTTPBody } from '../src';
+import { HTTPAPIGatewayProxyResult, HTTPBody } from '../../src';
 
 class MockHTTPAPIGatewayProxyResult implements HTTPAPIGatewayProxyResult {
 

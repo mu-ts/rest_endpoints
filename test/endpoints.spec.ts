@@ -3,7 +3,7 @@ import { endpoint, HTTPAPIGatewayProxyResult } from '../src';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { MockAPIGatewayProxyEvent } from './mocks/MockAPIGatewayProxyEvent';
 import { MockContext } from './mocks/MockContext';
-import { MockHTTPAPIGatewayProxyResult } from './MockHTTPAPIGatewayProxyResult';
+import { MockHTTPAPIGatewayProxyResult } from './mocks/MockHTTPAPIGatewayProxyResult';
 
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
