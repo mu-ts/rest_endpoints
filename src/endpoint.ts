@@ -1,9 +1,9 @@
 import { EndpointRouter } from './EndpointRouter';
 import { HTTPAction } from './HTTPAction';
 import { APIGatewayProxyEventCondition } from './APIGatewayProxyEventCondition';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Validation } from './Validation';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
-import { APIGatewayEvent } from './EndpointEvent';
 
 /**
  *
@@ -18,9 +18,9 @@ export function endpoint(
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const targetMethod = descriptor.value;
 
-    descriptor.value = function() {
-      const event: APIGatewayEvent<any> = arguments[0];
-      const validations: Array<Validation> = arguments[2];
+        descriptor.value = function () {
+            const event: APIGatewayProxyEvent = arguments[0];
+            const validations: Array<Validation> = arguments[2];
 
             if (validations) {
                 const validationErrors = new Set<string>();

@@ -1,6 +1,6 @@
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { HTTPBody } from './HTTPBody';
-import { EndpointEvent } from './EndpointEvent';
 
 export interface EventCondition {
-  (body: HTTPBody | undefined, event: EndpointEvent<any>): boolean;
+  (body: HTTPBody | undefined, event: APIGatewayProxyEvent): boolean;
 }
