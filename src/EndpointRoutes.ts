@@ -1,12 +1,25 @@
+import 'reflect-metadata';
+import { Logger, ConsoleLogger, LogLevel } from '@mu-ts/logger';
 import { EventCondition } from './EventCondition';
 import { EndpointRoute } from './EndpointRoute';
+import { ObjectFactory } from './ObjectFactory';
 
 const METADATA_KEY: string = '__mu-ts_endpoints';
 
 export class EndpointRoutes {
   private static _routes: Array<EndpointRoute> = [];
+  private static _instances: Map<string, any> = new Map();
+  private static logger: Logger = new ConsoleLogger('EndpointRoutes', LogLevel.info);
 
   private constructor() {}
+
+  /**
+   *
+   * @param headers to set on every request.
+   */
+  public static setLogLevel(level: LogLevel): void {
+    EndpointRoutes.logger.setLevel(level);
+  }
 
   /**
    *
@@ -15,7 +28,12 @@ export class EndpointRoutes {
     return EndpointRoutes._routes;
   }
 
+  /**
+   *
+   * @param condition to execute against array of routes to determine if the route is located.
+   */
   public static find(condition: Function): EndpointRoute | undefined {
+    EndpointRoutes.logger.debug('find()', condition);
     return EndpointRoutes._routes.find((value: EndpointRoute, index: number) => condition(value, index));
   }
 
@@ -23,16 +41,37 @@ export class EndpointRoutes {
    *
    * @param target to attach endpoints to.
    */
-  public static init(target: any, pathPrefix: string = ''): void {
-    const paths: EndpointRoute[] = Reflect.getMetadata(METADATA_KEY, target.constructor) || [];
+  public static init(target: any, pathPrefix: string = '', objectFactory?: ObjectFactory): void {
+    EndpointRoutes.logger.debug('init()', { pathPrefix, target });
+    const paths: EndpointRoute[] = Reflect.getMetadata(METADATA_KEY, <Function>target) || [];
     paths.forEach((path: EndpointRoute) => {
-      path.resource = `${pathPrefix}${path.resource}`;
+      path.resource = `${pathPrefix || ''}${path.resource || ''}`;
       if (!path.resource || path.resource.trim() === '') {
         throw Error('Both @endpoints does not contain a prefix and @endpoint does not contain a path.');
       }
-      path.endpoint = path.endpoint.bind(target);
+
+      const _instance: any = EndpointRoutes.getInstance(target, objectFactory);
+
+      path.endpoint = path.endpoint.bind(_instance);
+
+      EndpointRoutes.logger.debug('init() path', { path, name: target['name'] });
+
       EndpointRoutes._routes.push(path);
     });
+  }
+
+  /**
+   *
+   * @param _constructor to invoke a new instance of.
+   * @param objectFactory to use to create the arguments for the constructor.
+   */
+  private static getInstance(_constructor: any, objectFactory?: ObjectFactory): any {
+    let instance = EndpointRoutes._instances.get(_constructor['name']);
+    if (!instance) {
+      instance = new _constructor(objectFactory ? objectFactory.get(_constructor.name) : undefined);
+      EndpointRoutes._instances.set(_constructor['name'], instance);
+    }
+    return instance;
   }
 
   /**
@@ -71,5 +110,6 @@ export class EndpointRoutes {
       priority: priority || 0,
     });
     Reflect.defineMetadata(METADATA_KEY, paths, target.constructor);
+    EndpointRoutes.logger.debug('register() path', { resource, action, condition, priority });
   }
 }

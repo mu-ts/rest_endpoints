@@ -7,13 +7,14 @@ import { EndpointRoute } from './EndpointRoute';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { JSONRedactingSerializer } from './JSONRedactingSerializer';
 import { EndpointRoutes } from './EndpointRoutes';
+import { setLevel } from './decorators';
 
 /**
  * Singleton that contains all of the routes registered for this
  * endpoint.
  */
 export abstract class EndpointRouter {
-  private static logger: Logger = new ConsoleLogger('EndpointRouter');
+  private static logger: Logger = new ConsoleLogger('EndpointRouter', LogLevel.info);
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
   public static validationHandler: any;
 
@@ -25,6 +26,8 @@ export abstract class EndpointRouter {
    */
   public static setLogLevel(level: LogLevel): void {
     EndpointRouter.logger.setLevel(level);
+    EndpointRoutes.setLogLevel(level);
+    setLevel(level);
   }
 
   /**
@@ -65,7 +68,8 @@ export abstract class EndpointRouter {
     event.rawBody = event.body;
     event.body = event.rawBody ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
 
-    EndpointRouter.logger.debug('EndpointRouter.routes', { resource: event.resource, httpMethod: event.httpMethod });
+    EndpointRouter.logger.debug('handle() request path', { resource: event.resource, httpMethod: event.httpMethod });
+    EndpointRouter.logger.debug('handle() routes', EndpointRoutes.getRoutes());
 
     const routeOptions: Array<EndpointRoute> = EndpointRoutes.getRoutes()
       .filter((route: EndpointRoute) => route.resource === event.resource)

@@ -11,3 +11,4 @@ export * from './HTTPBody';
 export * from './HTTPSerializer';
 export * from './JSONRedactingSerializer';
 export * from './Validation';
+export * from './ObjectFactory';

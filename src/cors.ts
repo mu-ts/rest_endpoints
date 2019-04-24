@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { HTTPAction } from './HTTPAction';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { AllowedOrigin } from './AllowedOrigin';
+import { logging } from './decorators';
 
 /**
  * Needs to be placed after the @endpoints decorator.
@@ -17,6 +18,8 @@ export function cors(
 ) {
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const targetMethod = descriptor.value;
+
+    logging.debug('cors() - decorating function.');
 
     descriptor.value = function() {
       const event: APIGatewayProxyEvent = arguments[0];
