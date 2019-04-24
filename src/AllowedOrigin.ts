@@ -1,6 +1,6 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
+import { EndpointEvent } from './EndpointEvent';
 
 export interface AllowedOrigin {
-  (event: APIGatewayProxyEvent, response: HTTPAPIGatewayProxyResult): string;
+  (event: EndpointEvent<any>, response: HTTPAPIGatewayProxyResult): string;
 }
