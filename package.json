@@ -1,6 +1,6 @@
 {
   "name": "@mu-ts/endpoints",
-  "version": "1.1.0",
+  "version": "1.1.9",
   "description": "Simple REST endpoint and action routing.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -47,6 +47,7 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.11.3",
+    "@types/aws-lambda": "^8.10.23",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.2.0",
@@ -59,7 +60,7 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "@types/aws-lambda": "^8.10.23",
+    "@mu-ts/logger": "^1.1.0",
     "reflect-metadata": "^0.1.13"
   },
   "nyc": {

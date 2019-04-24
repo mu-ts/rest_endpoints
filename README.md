@@ -33,11 +33,12 @@ EndpointRouter.setDefaultHeaders({
 });
 
 const usersService: UsersService = new UsersService();
-  /**
-   * Once an instance is created it registers its endpoints with
-   * the EndpointRouter. Only do it once.
-   */
-  new GetUsersEndpoint(usersService);
+
+/**
+ * Once an instance is created it registers its endpoints with
+ * the EndpointRouter. Only do it once.
+ */
+new GetUsersEndpoint(usersService);
 
 module.export.rest = EndpointRouter.handle;
 ```
@@ -55,15 +56,16 @@ If multiple endpoints qualify, the first endpoint that returns a value will term
 Examples:
 
 ```
-import { endpoint, EndpointResponse, EndpointEvent } from '@authvia/endpoints';
+import { endpoint, endpoints, EndpointResponse, EndpointEvent } from '@authvia/endpoints';
 
+@endpoints('/v3')
 public class GetUsersEndpoint {
 
   constructor(usersService: UsersService){
     this.usersService = usersService;
   }
 
-  @endpoint('/users/{user-id}','PATCH')
+  @endpoint('PATCH','/users/{user-id}')
   updateUser(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
     return HTTPResponse.body('the-body');
   }
@@ -74,7 +76,7 @@ public class GetUsersEndpoint {
    *
    * This could be more complex, and
    */
-  @endpoint('/users/{user-id}',HTTPAction.POST, (body:HTTPBody) => body['action'] === 'promote' || false, 50)
+  @endpoint(HTTPAction.POST, '/users/{user-id}', (body:HTTPBody) => body['action'] === 'promote' || false, 50)
   updateUser(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
     return HTTPResponse
       .body('the-body');
@@ -84,7 +86,7 @@ public class GetUsersEndpoint {
    * This function will be the 'default'. So if the body does not contain an attribute
    * called action, with the value 'promote' then this function will be exeecuted.
    */
-  @endpoint('/users/{user-id}',HTTPAction.POST)
+  @endpoint(HTTPAction.POST,'/users/{user-id}')
   updateUser(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
     return HTTPResponse.body('the-body');
   }
@@ -105,7 +107,7 @@ Example:
 import { Response } from './endpoints';
 import Response as EndpointResponse from './.endpoints';
 
-@endpoint('/users','GET')
+@endpoint('GET','/users')
 @cors(allowedOrigin,allowedActions,allowedHeaders,allowCredentials)
 handle(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
 
