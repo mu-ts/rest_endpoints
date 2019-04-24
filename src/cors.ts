@@ -1,8 +1,9 @@
 import 'reflect-metadata';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { HTTPAction } from './HTTPAction';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { AllowedOrigin } from './AllowedOrigin';
-import { EndpointEvent } from './EndpointEvent';
+
 /**
  * Needs to be placed after the @endpoints decorator.
  *
@@ -18,7 +19,7 @@ export function cors(
     const targetMethod = descriptor.value;
 
     descriptor.value = function() {
-      const event: EndpointEvent<any> = arguments[0];
+      const event: APIGatewayProxyEvent = arguments[0];
 
       return targetMethod.apply(this, arguments).then((response: HTTPAPIGatewayProxyResult) => {
         const origin: string = typeof allowedOrigin === 'string' ? allowedOrigin : allowedOrigin(event, response);

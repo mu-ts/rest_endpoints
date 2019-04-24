@@ -3,62 +3,55 @@ import { HTTPAction } from './HTTPAction';
 import { APIGatewayProxyEventCondition } from './APIGatewayProxyEventCondition';
 import { Validation } from './Validation';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
-import { EndpointEvent } from './EndpointEvent';
+import { APIGatewayEvent } from './EndpointEvent';
 
 /**
  *
  * @param route for this function.
  */
 export function endpoint(
-  path: string,
-  action: HTTPAction | string,
-  condition?: APIGatewayProxyEventCondition,
-  priority?: number
+    path: string,
+    action: HTTPAction | string,
+    condition?: APIGatewayProxyEventCondition,
+    priority?: number
 ) {
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const targetMethod: Function = descriptor.value;
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        const targetMethod = descriptor.value;
 
-    targetMethod.bind(target);
-
-    const functionToInvoke: Function = async function(): Promise<HTTPAPIGatewayProxyResult> {
-      const event: EndpointEvent<any> = arguments[0];
+    descriptor.value = function() {
+      const event: APIGatewayEvent<any> = arguments[0];
       const validations: Array<Validation> = arguments[2];
 
-      if (validations) {
-        const validationErrors = new Set<string>();
+            if (validations) {
+                const validationErrors = new Set<string>();
+                validations.forEach(validation => {
+                    validationErrors.add(EndpointRouter.validationHandler.validate(event.body, validation.schema));
+                });
 
-        validations.forEach(validation => {
-          validationErrors.add(EndpointRouter.validationHandler.validate(event.body, validation.schema));
-        });
+                if (validationErrors.size) {
+                    return HTTPAPIGatewayProxyResult.setBody({message: validationErrors})
+                        .setStatusCode(400)
+                        .addHeader('X-REQUEST-ID', event.requestContext.requestId);
+                }
+            }
+            return targetMethod
+                .apply(this, arguments)
+                .then((response: HTTPAPIGatewayProxyResult) => {
+                    response.addHeader('X-REQUEST-ID', event.requestContext.requestId);
+                    return response;
+                })
 
-        if (validationErrors.size) {
-          return HTTPAPIGatewayProxyResult.setBody({ message: validationErrors })
-            .setStatusCode(400)
-            .addHeader('X-REQUEST-ID', event.requestContext.requestId);
-        }
-      }
+                .catch((error: any) => {
+                    return HTTPAPIGatewayProxyResult.setBody({message: error.message})
+                        .setStatusCode(501)
+                        .addHeader('X-REQUEST-ID', event.requestContext.requestId);
+                });
+        };
 
-      return targetMethod
-        .call(arguments)
-        .then((response: HTTPAPIGatewayProxyResult) => {
-          response.addHeader('X-REQUEST-ID', event.requestContext.requestId);
-          return response;
-        })
+        const routeAction = typeof action === 'string' ? action.toUpperCase() : action;
 
-        .catch((error: any) => {
-          return HTTPAPIGatewayProxyResult.setBody({ message: error.message })
-            .setStatusCode(501)
-            .addHeader('X-REQUEST-ID', event.requestContext.requestId);
-        });
+        EndpointRouter.register(path, routeAction.toUpperCase(), descriptor.value, descriptor, condition, priority);
+
+        return descriptor;
     };
-
-    functionToInvoke.bind(target);
-    descriptor.value = functionToInvoke;
-
-    const routeAction = typeof action === 'string' ? action.toUpperCase() : action;
-
-    EndpointRouter.register(path, routeAction.toUpperCase(), functionToInvoke, descriptor, condition, priority);
-
-    return descriptor;
-  };
 }

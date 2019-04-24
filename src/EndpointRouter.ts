@@ -1,5 +1,4 @@
 import { Context, Callback, APIGatewayProxyResult } from 'aws-lambda';
-import { Logger, ConsoleLogger, LogLevel } from '@mu-ts/logger';
 import { HTTPSerializer } from './HTTPSerializer';
 import { EventCondition } from './EventCondition';
 import { Validation } from './Validation';
@@ -24,7 +23,6 @@ interface EndpointRoute {
 export abstract class EndpointRouter {
   private static routes: Array<EndpointRoute> = [];
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
-  private static logger: Logger = new ConsoleLogger('EndpointRouter');
   public static validationHandler: any;
 
   private constructor() {}
@@ -52,7 +50,6 @@ export abstract class EndpointRouter {
     condition?: EventCondition,
     priority?: number
   ): void {
-    EndpointRouter.logger.debug('register()', arguments);
     EndpointRouter.routes.push({
       descriptor: descriptor,
       resource: resource,
@@ -64,7 +61,6 @@ export abstract class EndpointRouter {
   }
 
   public static attachEndpointValidation(descriptor: PropertyDescriptor, validation: Validation): void {
-    EndpointRouter.logger.debug('attachEndpointValidation()', arguments);
     const route = EndpointRouter.routes.find(route => route.descriptor === descriptor);
     if (route) {
       if (route.validations) {
@@ -77,18 +73,9 @@ export abstract class EndpointRouter {
 
   /**
    *
-   * @param level to use for the EndpointRouter.
-   */
-  public static setLogLevel(level: LogLevel): void {
-    EndpointRouter.logger.setLevel(level);
-  }
-
-  /**
-   *
    * @param headers to set on every request.
    */
   public static setDefaultHeaders(headers: { [name: string]: boolean | number | string }): void {
-    EndpointRouter.logger.debug('setDefaultHeaders() to', headers);
     HTTPAPIGatewayProxyResult.setDefaultHeaders(headers);
   }
 
@@ -99,25 +86,21 @@ export abstract class EndpointRouter {
    * @param callback to execute when completed.
    */
   public static handle(event: EndpointEvent<any>, context: Context, callback: Callback<APIGatewayProxyResult>): void {
-    EndpointRouter.logger.debug('handle() event', event);
-
     event.rawBody = event.body;
     event.body = event.rawBody ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
-    EndpointRouter.logger.debug('handle()', { resource: event.resource, httpMethod: event.httpMethod });
-
+    console.log('EndpointRouter.routes', { resource: event.resource, httpMethod: event.httpMethod });
     const routeOptions: Array<EndpointRoute> = EndpointRouter.routes
       .filter((route: EndpointRoute) => route.resource === event.resource)
       .filter((route: EndpointRoute) => route.action === event.httpMethod)
       .filter((route: EndpointRoute) => {
+        console.log('check condition', route);
         if (route.condition) {
-          EndpointRouter.logger.debug('handle() evaluating condition');
           return route.condition(event.body, event);
         }
         return route;
       })
       .map((route: EndpointRoute) => {
         if (route.validations) {
-          EndpointRouter.logger.debug('handle() evaluating validations to apply');
           route.validations = route.validations.filter(
             validation => validation.validatorCondition && validation.validatorCondition(event.body, event)
           );
@@ -129,10 +112,6 @@ export abstract class EndpointRouter {
       .sort((first: EndpointRoute, second: EndpointRoute) => second.priority - first.priority);
 
     if (!routeOptions || routeOptions.length === 0) {
-      EndpointRouter.logger.error('There is no action for the path defined.', {
-        resource: event.resource,
-        httpMethod: event.httpMethod,
-      });
       return callback(
         undefined,
         HTTPAPIGatewayProxyResult.setBody({ message: 'Action is not implemented at this path.' })
@@ -143,12 +122,9 @@ export abstract class EndpointRouter {
 
     let promiseChain = Promise.resolve<APIGatewayProxyResult | undefined>(undefined);
 
-    EndpointRouter.logger.debug('handle() routeOptions', routeOptions);
-
     for (const route of routeOptions) {
       promiseChain = promiseChain.then((response: APIGatewayProxyResult | undefined) => {
         if (response) return response;
-        EndpointRouter.logger.debug('handle() No response yet, invoking endpoint');
         return route.endpoint(event, context, route.validations);
       });
     }
