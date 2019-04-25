@@ -13,20 +13,15 @@ function getRedactedKeys(target: any): Array<string> {
 /**
  * Used to ensure that values in a model are removed from the response
  * when it is being serialized.
- *
- * @param target object where the attribute is being redacted.
- * @param propertyKey of the attribute being redacted.
- * @param descriptor of the attribute being redacted.
  */
-function redacted(target: any, propertyToRedact: string) {
-  const metadata = Reflect.getMetadata(METADATA_KEY, target) || {};
-  const redactedKeys = metadata[REDACTED_KEY] || [];
-
-  redactedKeys.push(propertyToRedact);
-
-  metadata[REDACTED_KEY] = redactedKeys;
-
-  Reflect.defineMetadata(METADATA_KEY, metadata, target);
+export function redacted() {
+  return function(target: any, propertyToRedact: string) {
+    const metadata = Reflect.getMetadata(METADATA_KEY, target) || {};
+    const redactedKeys = metadata[REDACTED_KEY] || [];
+    redactedKeys.push(propertyToRedact);
+    metadata[REDACTED_KEY] = redactedKeys;
+    Reflect.defineMetadata(METADATA_KEY, metadata, target);
+  };
 }
 
 /**
