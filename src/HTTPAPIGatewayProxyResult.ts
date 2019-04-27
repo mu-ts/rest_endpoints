@@ -5,7 +5,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
  * Structures the response so that API Gateway can interpret it.
  */
 export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
-  public body: string = '';
+  public body: string | any = '';
   public statusCode: number = 200;
   public headers?: {
     [header: string]: boolean | number | string;
@@ -49,7 +49,7 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
    * @param body To return to the caller.
    */
   public setBody(body: string | HTTPBody): HTTPAPIGatewayProxyResult {
-    this.body = typeof body === 'string' ? body : JSON.stringify(body);
+    this.body = body;
     return this;
   }
 
