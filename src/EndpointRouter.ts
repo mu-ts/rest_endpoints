@@ -120,7 +120,9 @@ export abstract class EndpointRouter {
       EndpointRouter.logger.debug('handle() response', response);
 
       response.body =
-        typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body);
+        typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body, response.type);
+
+      delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
 
       EndpointRouter.logger.debug('handle() response after serializing', response);
 

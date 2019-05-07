@@ -2,13 +2,7 @@ import 'reflect-metadata';
 import { HTTPSerializer } from './HTTPSerializer';
 import { HTTPBody } from './HTTPBody';
 
-const METADATA_KEY: string = '__MU-TS';
-const REDACTED_KEY: string = 'redacted';
-
-function getRedactedKeys(target: any): Array<string> {
-  const metadata = Reflect.getMetadata(METADATA_KEY, target) || {};
-  return metadata[REDACTED_KEY] || [];
-}
+const typeRedaction: Map<string, string[]> = new Map();
 
 /**
  * Used to ensure that values in a model are removed from the response
@@ -16,11 +10,9 @@ function getRedactedKeys(target: any): Array<string> {
  */
 export function redacted() {
   return function(target: any, propertyToRedact: string) {
-    const metadata = Reflect.getMetadata(METADATA_KEY, target) || {};
-    const redactedKeys = metadata[REDACTED_KEY] || [];
-    redactedKeys.push(propertyToRedact);
-    metadata[REDACTED_KEY] = redactedKeys;
-    Reflect.defineMetadata(METADATA_KEY, metadata, target);
+    let redactedKeys = typeRedaction.get(target.constructor.name) || [];
+    redactedKeys.push(propertyToRedact)
+    typeRedaction.set(target.constructor.name, redactedKeys)
   };
 }
 
@@ -36,13 +28,16 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     return <HTTPBody>JSON.parse(eventBody);
   }
 
-  public serializeResponse(responseBody: HTTPBody): string {
-    const toSerialize: HTTPBody = this.redact(responseBody);
+  public serializeResponse<T>(responseBody: HTTPBody, type: T): string {
+    const toSerialize: HTTPBody = this.redact(responseBody, type);
     return JSON.stringify(toSerialize);
   }
 
-  private redact(toSerialize: HTTPBody): HTTPBody {
-    const redactedKeys: Array<string> = getRedactedKeys(toSerialize);
+  private redact<T>(toSerialize: HTTPBody, type: T): HTTPBody {
+    if(!type) {
+      return toSerialize;
+    }
+    const redactedKeys: Array<string> = typeRedaction.get(type.constructor.name) || [];
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
       if (!redactedKeys.includes(key)) newObject[key] = toSerialize[key];
       return newObject;
