@@ -28,10 +28,13 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         const validationErrors = new Set<string>();
 
         validations.forEach(validation => {
-          validationErrors.add(EndpointRouter.validationHandler.validate(event.body, validation.schema));
+          const errors = EndpointRouter.validationHandler.validate(event.body, validation.schema);
+          if (errors) {
+            validationErrors.add(errors);
+          }
         });
 
-        if (validationErrors.size) {
+        if (validationErrors.size > 0) {
           logging.error('endpoint() - failed validation');
 
           return Promise.resolve(
