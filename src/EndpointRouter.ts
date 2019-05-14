@@ -41,23 +41,6 @@ export abstract class EndpointRouter {
 
   /**
    *
-   * @param descriptor
-   * @param validation
-   */
-  public static attachEndpointValidation(descriptor: PropertyDescriptor, validation: Validation): void {
-    EndpointRouter.logger.info('attachEndpointValidation() - ', { descriptor, validation });
-    const route = EndpointRoutes.find((route: EndpointRoute) => route.descriptor === descriptor);
-    if (route) {
-      if (route.validations) {
-        route.validations.push(validation);
-      } else {
-        route.validations = [validation];
-      }
-    }
-  }
-
-  /**
-   *
    * @param event to invoke the endpoint with.
    * @param context of the invocation.
    * @param callback to execute when completed.
@@ -87,13 +70,9 @@ export abstract class EndpointRouter {
           return route;
         })
         .map((route: EndpointRoute) => {
-          if (route.validations) {
-            route.validations = route.validations.filter(
-              validation => validation.validatorCondition && validation.validatorCondition(event.body, event)
-            );
-          } else {
-            route.validations = [];
-          }
+
+          const validations = EndpointRoutes.getValidators().filter(validator => validator.descriptor === route.descriptor);
+          route.validations = validations;
           return route;
         })
         .sort((first: EndpointRoute, second: EndpointRoute) => second.priority - first.priority);
