@@ -28,9 +28,9 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         const validationErrors = new Set<string>();
 
         validations.forEach(validation => {
-          const errors = EndpointRouter.validationHandler.validate(event.body, validation.schema);
+          const errors: string[] = EndpointRouter.validationHandler.validate(event.body, validation.schema);
           if (errors) {
-            validationErrors.add(errors);
+            errors.forEach(item => validationErrors.add(item));
           }
         });
 
@@ -38,7 +38,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
           logging.error('endpoint() - failed validation');
 
           return Promise.resolve(
-            HTTPAPIGatewayProxyResult.setBody({ message: validationErrors })
+            HTTPAPIGatewayProxyResult.setBody({ message: Array.from(validationErrors) })
               .setStatusCode(400)
               .addHeader('X-REQUEST-ID', event.requestContext.requestId)
           );
