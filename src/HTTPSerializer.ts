@@ -16,5 +16,5 @@ export interface HTTPSerializer {
    *
    * @param response
    */
-  serializeResponse(responseBody: HTTPBody): string;
+  serializeResponse<T>(responseBody: HTTPBody, type: T): string;
 }
