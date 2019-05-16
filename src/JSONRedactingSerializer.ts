@@ -10,9 +10,11 @@ const typeRedaction: Map<string, string[]> = new Map();
  */
 export function redacted() {
   return function(target: any, propertyToRedact: string) {
-    const redactedKeys = typeRedaction.get(target.constructor.name) || [];
+    const name = target.constructor.name.toLowerCase();
+
+    const redactedKeys = typeRedaction.get(name) || [];
     redactedKeys.push(propertyToRedact);
-    typeRedaction.set(target.constructor.name, redactedKeys);
+    typeRedaction.set(name, redactedKeys);
   };
 }
 
