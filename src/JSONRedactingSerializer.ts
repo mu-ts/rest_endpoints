@@ -10,9 +10,9 @@ const typeRedaction: Map<string, string[]> = new Map();
  */
 export function redacted() {
   return function(target: any, propertyToRedact: string) {
-    let redactedKeys = typeRedaction.get(target.constructor.name) || [];
-    redactedKeys.push(propertyToRedact)
-    typeRedaction.set(target.constructor.name, redactedKeys)
+    const redactedKeys = typeRedaction.get(target.constructor.name) || [];
+    redactedKeys.push(propertyToRedact);
+    typeRedaction.set(target.constructor.name, redactedKeys);
   };
 }
 
@@ -33,11 +33,12 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     return JSON.stringify(toSerialize);
   }
 
-  private redact<T>(toSerialize: HTTPBody, type: T): HTTPBody {
-    if(!type) {
+  private redact<T>(toSerialize: HTTPBody, type: string | T): HTTPBody {
+    if (!type) {
       return toSerialize;
     }
-    const redactedKeys: Array<string> = typeRedaction.get(type.constructor.name) || [];
+    const name = typeof type === 'string' ? type : `${(<any>type)['name'].toLowerCase()}`;
+    const redactedKeys: Array<string> = typeRedaction.get(name) || [];
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
       if (!redactedKeys.includes(key)) newObject[key] = toSerialize[key];
       return newObject;
