@@ -51,7 +51,7 @@ export abstract class EndpointRouter {
     callback: Callback<HTTPAPIGatewayProxyResult>
   ): Promise<HTTPAPIGatewayProxyResult> {
     try {
-      EndpointRouter.logger.debug('handle()', event);
+      EndpointRouter.logger.info('handle()', event);
 
       event.rawBody = event.body;
       event.body = event.rawBody ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
