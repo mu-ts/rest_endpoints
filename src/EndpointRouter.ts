@@ -70,8 +70,8 @@ export abstract class EndpointRouter {
           return route;
         })
         .map((route: EndpointRoute) => {
-
-          const validations = EndpointRoutes.getValidators().filter(validator => validator.descriptor === route.descriptor);
+          const validators = EndpointRoutes.getValidators() || [];
+          const validations = validators.filter(validator => validator.descriptor === route.descriptor);
           route.validations = validations;
           return route;
         })
