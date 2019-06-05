@@ -98,8 +98,11 @@ export abstract class EndpointRouter {
 
       EndpointRouter.logger.debug('handle() response', response);
 
+
+      const scopes = event.requestContext.authorizer && String(event.requestContext.authorizer.scope);
+
       response.body =
-        typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body, response.type);
+        typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes);
 
       delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
 
@@ -114,7 +117,7 @@ export abstract class EndpointRouter {
   }
 
   static attachValidationHandler(validationHandler: object) {
-    EndpointRouter.logger.info('attachValidationHandler()', validationHandler);
+    EndpointRouter.logger.info('attachValidationHandler()', JSON.stringify(validationHandler));
     if (!validationHandler.hasOwnProperty('validate')) {
       throw new Error('Invalid validator supplied');
     } else {
