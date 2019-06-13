@@ -63,7 +63,12 @@ export function validate(schema: object | string, condition?: EventCondition) {
          */
         let schemaObject: object;
         if (typeof schema === 'string') {
-            schemaObject = require(`${process.cwd()}/${schema}`);
+            const path = require('path');
+            try {
+                schemaObject = require(path.resolve(process.cwd(), schema));
+            } catch(e) {
+                schemaObject = require(path.resolve(process.cwd(), '_optimize', process.env.AWS_LAMBDA_FUNCTION_NAME, schema));
+            }
         } else {
             schemaObject = schema;
         }
