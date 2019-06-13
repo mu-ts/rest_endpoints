@@ -9,15 +9,15 @@ const exceptionRedaction: Map<string, string> = new Map();
  * Used to ensure that values in a model are removed from the response
  * when it is being serialized.
  */
-export function redacted(exceptions?:string) {
+export function redacted(exceptions?: string) {
   return function(target: any, propertyToRedact: string) {
     const name = target.constructor.name.toLowerCase();
 
     const redactedKeys = typeRedaction.get(name) || [];
     redactedKeys.push(propertyToRedact);
     typeRedaction.set(name, redactedKeys);
-    if(exceptions) {
-      exceptionRedaction.set(propertyToRedact, exceptions)
+    if (exceptions) {
+      exceptionRedaction.set(propertyToRedact, exceptions);
     }
   };
 }
@@ -34,12 +34,12 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     return <HTTPBody>JSON.parse(eventBody);
   }
 
-  public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?:string): string {
+  public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string): string {
     const toSerialize: HTTPBody = this.redact(responseBody, type, scopes);
     return JSON.stringify(toSerialize);
   }
 
-  private redact<T>(toSerialize: HTTPBody, type: string | T, scopes?:string): HTTPBody {
+  private redact<T>(toSerialize: HTTPBody, type: string | T, scopes?: string): HTTPBody {
     if (!type) {
       return toSerialize;
     }

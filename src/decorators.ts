@@ -1,7 +1,7 @@
-import { Logger, ConsoleLogger, LogLevel } from '@mu-ts/logger';
+import { LoggerService, LogLevelString, Logger } from '@mu-ts/logger';
 
-export const logging: Logger = new ConsoleLogger('Decorators', LogLevel.info);
-
-export function setLevel(level: LogLevel) {
-  logging.setLevel(level);
+const decoratorLogger: Logger = LoggerService.named('decorators');
+export const logger: Logger = decoratorLogger;
+export function setLevel(level: LogLevelString) {
+  decoratorLogger.level(level);
 }

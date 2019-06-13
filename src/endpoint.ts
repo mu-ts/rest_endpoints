@@ -5,7 +5,7 @@ import { EndpointEvent } from './EndpointEvent';
 import { EventCondition } from './EventCondition';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { EndpointRoutes } from './EndpointRoutes';
-import { logging } from './decorators';
+import { logger } from './decorators';
 
 /**
  *
@@ -18,7 +18,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
     const targetMethod = descriptor.value;
 
-    logging.debug('endpoint() - decorating function.');
+    logger.debug({ data: { action, path, condition, priority, propertyKey } }, 'endpoint() - decorating function.');
 
     descriptor.value = function(): Promise<HTTPAPIGatewayProxyResult> {
       const event: EndpointEvent<any> = arguments[0];
@@ -31,12 +31,11 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         const validationErrors = new Set<string>();
 
         validations.forEach(validation => {
-
-          const keys: string[]     = Object.keys(validation.schema);
+          const keys: string[] = Object.keys(validation.schema);
           const dataKeys: string[] = Object.keys(event.body);
 
           let unmatchedKeys: string[];
-          unmatchedKeys = dataKeys.filter(key => ! keys.includes(key));
+          unmatchedKeys = dataKeys.filter(key => !keys.includes(key));
 
           if (unmatchedKeys) {
             unmatchedKeys.forEach(key => validationErrors.add(`'${key}' is not a valid property (not in schema)`));
@@ -49,7 +48,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         });
 
         if (validationErrors.size > 0) {
-          logging.error('endpoint() - failed validation');
+          logger.error({ data: { validationErrors } }, 'endpoint() - failed validation');
 
           return Promise.resolve(
             HTTPAPIGatewayProxyResult.setBody({ message: Array.from(validationErrors) })
@@ -62,19 +61,19 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
       return targetMethod
         .apply(this, arguments)
         .then((response: HTTPAPIGatewayProxyResult) => {
-          logging.debug('endpoint() - response', response);
+          logger.debug({ data: response }, 'endpoint() - response');
           response.addHeader('X-REQUEST-ID', event.requestContext.requestId);
           return response;
         })
         .catch((error: any) => {
-          logging.error('endpoint() - problem executing function', error);
+          logger.error(error, 'endpoint() - problem executing function');
           return HTTPAPIGatewayProxyResult.setBody({ message: error.message })
             .setStatusCode(501)
             .addHeader('X-REQUEST-ID', event.requestContext.requestId);
         });
     };
 
-    logging.debug('endpoint() registering', { path, action: ('' + action).toUpperCase() });
+    logger.debug({ data: { path, action: ('' + action).toUpperCase() } }, 'endpoint() registering');
 
     EndpointRoutes.register(
       target,

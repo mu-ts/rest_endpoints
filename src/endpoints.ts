@@ -1,14 +1,13 @@
 import { EndpointRoutes } from './EndpointRoutes';
-import { logging } from './decorators';
-import { ObjectFactory } from './ObjectFactory';
+import { logger } from './decorators';
 
 /**
  *
  * @param pathPrefix to prepend to all endpoints within this class.
  */
-export function endpoints(pathPrefix?: string, objectFactory?: ObjectFactory) {
+export function endpoints(pathPrefix?: string, instanceArgs?: any[]) {
   return function(target: any) {
-    logging.debug('endpoints() initializing', { pathPrefix });
-    EndpointRoutes.init(target, pathPrefix || '', objectFactory);
+    logger.debug({ data: { pathPrefix, instanceArgs } }, 'endpoints() initializing');
+    EndpointRoutes.init(target, pathPrefix || '', instanceArgs);
   };
 }

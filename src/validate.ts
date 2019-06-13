@@ -54,28 +54,29 @@ export function validate(schema: object, condition?: EventCondition): any;
  * @param condition the optional condition, specifying when a specific validation schema should be applied
  */
 export function validate(schema: object | string, condition?: EventCondition) {
+  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    /*
+     * If we are provided a schema file (string to url), then attempt to load that file in,
+     * otherwise we assume the object provided is a valid schema definition.
+     */
+    let schemaObject: object;
+    if (typeof schema === 'string') {
+      const path = require('path');
+      try {
+        schemaObject = require(path.resolve(process.cwd(), schema));
+      } catch (e) {
+        schemaObject = require(path.resolve(process.cwd(), '_optimize', process.env.AWS_LAMBDA_FUNCTION_NAME, schema));
+      }
+    } else {
+      schemaObject = schema;
+    }
 
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    EndpointRoutes.registerValidation(target, {
+      descriptor: descriptor,
+      schema: schemaObject,
+      validatorCondition: condition,
+    });
 
-        /*
-         * If we are provided a schema file (string to url), then attempt to load that file in,
-         * otherwise we assume the object provided is a valid schema definition.
-         */
-        let schemaObject: object;
-        if (typeof schema === 'string') {
-            const path = require('path');
-            try {
-                schemaObject = require(path.resolve(process.cwd(), schema));
-            } catch(e) {
-                schemaObject = require(path.resolve(process.cwd(), '_optimize', process.env.AWS_LAMBDA_FUNCTION_NAME, schema));
-            }
-        } else {
-            schemaObject = schema;
-        }
-
-        EndpointRoutes.registerValidation(target, {descriptor: descriptor, 'schema': schemaObject, validatorCondition: condition});
-
-        return descriptor;
-
-    };
+    return descriptor;
+  };
 }

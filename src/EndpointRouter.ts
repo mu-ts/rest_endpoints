@@ -1,7 +1,6 @@
 import { Context, Callback } from 'aws-lambda';
-import { LogLevel, Logger, ConsoleLogger } from '@mu-ts/logger';
+import { Logger, LoggerService, LogLevelString } from '@mu-ts/logger';
 import { HTTPSerializer } from './HTTPSerializer';
-import { Validation } from './Validation';
 import { EndpointEvent } from './EndpointEvent';
 import { EndpointRoute } from './EndpointRoute';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
@@ -14,7 +13,7 @@ import { setLevel } from './decorators';
  * endpoint.
  */
 export abstract class EndpointRouter {
-  private static logger: Logger = new ConsoleLogger('EndpointRouter', LogLevel.info);
+  private static logger: Logger = LoggerService.named('EndpointRouter');
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
   public static validationHandler: any;
 
@@ -24,10 +23,11 @@ export abstract class EndpointRouter {
    *
    * @param headers to set on every request.
    */
-  public static setLogLevel(level: LogLevel): void {
-    EndpointRouter.logger.setLevel(level);
+  public static setLogLevel(level: LogLevelString): void {
+    this.logger.level(level);
     EndpointRoutes.setLogLevel(level);
     setLevel(level);
+    LoggerService.setLevel(level);
   }
 
   /**
@@ -35,7 +35,7 @@ export abstract class EndpointRouter {
    * @param headers to set on every request.
    */
   public static setDefaultHeaders(headers: { [name: string]: boolean | number | string }): void {
-    EndpointRouter.logger.info('setDefaultHeaders()', headers);
+    this.logger.info({ data: headers }, 'setDefaultHeaders()');
     HTTPAPIGatewayProxyResult.setDefaultHeaders(headers);
   }
 
@@ -51,19 +51,19 @@ export abstract class EndpointRouter {
     callback: Callback<HTTPAPIGatewayProxyResult>
   ): Promise<HTTPAPIGatewayProxyResult> {
     try {
-      EndpointRouter.logger.info('handle()', event);
+      this.logger.debug({ data: event }, 'handle()');
 
       event.rawBody = event.body;
       event.body = event.rawBody ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
 
-      EndpointRouter.logger.debug('handle() request path', { resource: event.resource, httpMethod: event.httpMethod });
-      EndpointRouter.logger.debug('handle() routes', EndpointRoutes.getRoutes());
+      this.logger.debug({ data: { resource: event.resource, httpMethod: event.httpMethod } }, 'handle() request path');
+      this.logger.trace({ data: EndpointRoutes.getRoutes() }, 'handle() routes');
 
       const routeOptions: Array<EndpointRoute> = EndpointRoutes.getRoutes()
         .filter((route: EndpointRoute) => route.resource === event.resource)
         .filter((route: EndpointRoute) => route.action === event.httpMethod)
         .filter((route: EndpointRoute) => {
-          EndpointRouter.logger.debug('check condition', route);
+          this.logger.trace({ data: route }, 'check condition');
           if (route.condition) {
             return route.condition(event.body, event);
           }
@@ -96,17 +96,18 @@ export abstract class EndpointRouter {
           .addHeader('X-REQUEST-ID', event.requestContext.requestId);
       }
 
-      EndpointRouter.logger.debug('handle() response', response);
-
+      this.logger.debug({ data: response }, 'handle() response from route');
 
       const scopes = event.requestContext.authorizer && String(event.requestContext.authorizer.scope);
 
       response.body =
-        typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes);
+        typeof response.body === 'string'
+          ? response.body
+          : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes);
 
       delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
 
-      EndpointRouter.logger.debug('handle() response after serializing', response);
+      this.logger.debug({ data: response }, 'handle() response after serializing');
 
       return response;
     } catch (error) {
@@ -117,11 +118,11 @@ export abstract class EndpointRouter {
   }
 
   static attachValidationHandler(validationHandler: object) {
-    EndpointRouter.logger.info('attachValidationHandler()', JSON.stringify(validationHandler));
+    this.logger.debug({ data: { validationHandler } }, 'attachValidationHandler()');
     if (!validationHandler.hasOwnProperty('validate')) {
       throw new Error('Invalid validator supplied');
     } else {
-      EndpointRouter.validationHandler = validationHandler;
+      this.validationHandler = validationHandler;
     }
   }
 }

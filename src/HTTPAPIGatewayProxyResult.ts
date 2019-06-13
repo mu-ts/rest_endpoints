@@ -6,7 +6,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
  */
 export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
   public body: string | any = '';
-  public type: any = null;
+  public type: any = undefined;
   public statusCode: number = 200;
   public headers?: {
     [header: string]: boolean | number | string;
@@ -32,7 +32,7 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
    * @param defaultHeaders To set when a new HTTPAPIGatewayProxyResult is created
    */
   public static setDefaultHeaders(defaultHeaders: { [name: string]: boolean | number | string }): void {
-    HTTPAPIGatewayProxyResult._defaultHeaders = defaultHeaders || {};
+    this._defaultHeaders = defaultHeaders || {};
   }
 
   /**
