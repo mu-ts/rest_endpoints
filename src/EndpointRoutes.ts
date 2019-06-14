@@ -11,7 +11,7 @@ export class EndpointRoutes {
   private static _routes: Array<EndpointRoute> = [];
   private static _validations: Array<Validation> = [];
   private static _instances: Map<string, any> = new Map();
-  private static logger: Logger = LoggerService.named('EndpointRoutes');
+  private static logger: Logger = LoggerService.named('EndpointRoutes', { fwk: '@mu-ts' });
 
   private constructor() {}
 

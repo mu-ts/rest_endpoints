@@ -6,14 +6,13 @@ import { EndpointRoute } from './EndpointRoute';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { JSONRedactingSerializer } from './JSONRedactingSerializer';
 import { EndpointRoutes } from './EndpointRoutes';
-import { setLevel } from './decorators';
 
 /**
  * Singleton that contains all of the routes registered for this
  * endpoint.
  */
 export abstract class EndpointRouter {
-  private static logger: Logger = LoggerService.named('EndpointRouter');
+  private static logger: Logger = LoggerService.named('EndpointRouter', { fwk: '@mu-ts' });
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
   public static validationHandler: any;
 
@@ -26,8 +25,6 @@ export abstract class EndpointRouter {
   public static setLogLevel(level: LogLevelString): void {
     this.logger.level(level);
     EndpointRoutes.setLogLevel(level);
-    setLevel(level);
-    LoggerService.setLevel(level);
   }
 
   /**

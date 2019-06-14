@@ -6,7 +6,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
  */
 export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
   public body: string | any = '';
-  public type: any = undefined;
+  public type?: any = undefined;
   public statusCode: number = 200;
   public headers?: {
     [header: string]: boolean | number | string;

@@ -1,5 +1,6 @@
 import { EventCondition } from './index';
 import { EndpointRoutes } from './EndpointRoutes';
+import { LoggerService, Logger } from '@mu-ts/logger';
 
 export function validate(schema: string, condition?: EventCondition): any;
 export function validate(schema: object, condition?: EventCondition): any;
@@ -54,6 +55,7 @@ export function validate(schema: object, condition?: EventCondition): any;
  * @param condition the optional condition, specifying when a specific validation schema should be applied
  */
 export function validate(schema: object | string, condition?: EventCondition) {
+  const logger: Logger = LoggerService.named('validate', { fwk: '@mu-ts' });
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     /*
      * If we are provided a schema file (string to url), then attempt to load that file in,
@@ -70,6 +72,8 @@ export function validate(schema: object | string, condition?: EventCondition) {
     } else {
       schemaObject = schema;
     }
+
+    logger.debug({ data: { schema, condition, target } }, 'registering validator');
 
     EndpointRoutes.registerValidation(target, {
       descriptor: descriptor,

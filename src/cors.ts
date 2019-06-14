@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { HTTPAction } from './HTTPAction';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { AllowedOrigin } from './AllowedOrigin';
-import { logger } from './decorators';
+import { Logger, LoggerService } from '@mu-ts/logger';
 
 /**
  * Needs to be placed after the @endpoints decorator.
@@ -16,6 +16,7 @@ export function cors(
   allowedHeaders?: { [name: string]: string },
   allowCredentials: boolean = true
 ) {
+  const logger: Logger = LoggerService.named('cors', { fwk: '@mu-ts' });
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const targetMethod = descriptor.value;
 

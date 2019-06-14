@@ -5,7 +5,7 @@ import { EndpointEvent } from './EndpointEvent';
 import { EventCondition } from './EventCondition';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { EndpointRoutes } from './EndpointRoutes';
-import { logger } from './decorators';
+import { LoggerService, Logger } from '@mu-ts/logger';
 
 /**
  *
@@ -15,6 +15,7 @@ import { logger } from './decorators';
  * @param priority of this endpoint vs other registered endpoints.
  */
 export function endpoint(action: HTTPAction | string, path?: string, condition?: EventCondition, priority?: number) {
+  const logger: Logger = LoggerService.named('endpoint', { fwk: '@mu-ts' });
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
     const targetMethod = descriptor.value;
 
