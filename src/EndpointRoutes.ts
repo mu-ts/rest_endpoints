@@ -80,7 +80,7 @@ export class EndpointRoutes {
   private static getInstance(_constructor: any, instanceArgs?: any[]): any {
     let instance = this._instances.get(_constructor['name']);
     if (!instance) {
-      instance = new (_constructor.bind.appy(_constructor, instanceArgs))();
+      instance = new (_constructor.bind.apply(_constructor, instanceArgs))();
       this._instances.set(_constructor['name'], instance);
     }
     return instance;
