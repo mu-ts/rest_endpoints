@@ -13,41 +13,42 @@ chai.use(chaiAsPromised);
 chai.should();
 
 describe('EndpointDecorator', () => {
+  it('should properly resolve with a body as defined in the mock', () => {
+    class X {
+      test() {}
+    }
+    const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
+    const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult().setJSONBody({ hello: 'world' });
 
-    it('should properly resolve with a body as defined in the mock', () => {
+    const decorator: Function = endpoint('/list', 'get');
+    const mockDescriptor: PropertyDescriptor = new MockPropertyDescriptor();
+    const descriptor: PropertyDescriptor = decorator(X, 'test', mockDescriptor).setValue(result);
 
-        const decorator = endpoint('/list', 'get');
+    const endpointPromise: Promise<MockHTTPAPIGatewayProxyResult> = descriptor.value(event, new MockContext(), []);
 
-        const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
-        const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult().setJSONBody({'hello': 'world'});
+    return Promise.all([
+      endpointPromise.should.eventually.have.property('body'),
+      endpointPromise.should.eventually.have.property('body').that.equals('{"hello":"world"}'),
+      endpointPromise.should.eventually.have.property('statusCode'),
+      endpointPromise.should.eventually.have.property('statusCode').that.equals(200),
+    ]);
+  });
 
-        const descriptor = decorator(event, 'key', new MockPropertyDescriptor().setValue(result));
+  it('should properly allow the status override on the result object to be reflected from decorator call', () => {
+    const decorator = endpoint('/list', 'get');
 
-        const endpointPromise: Promise<HTTPAPIGatewayProxyResult> = descriptor.value(event, new MockContext(), []);
+    const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
+    const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult()
+      .setJSONBody({ hello: 'world' })
+      .setStatusCode(420);
 
-        return Promise.all([
-            endpointPromise.should.eventually.have.property('body'),
-            endpointPromise.should.eventually.have.property('body').that.equals('{"hello":"world"}'),
-            endpointPromise.should.eventually.have.property('statusCode'),
-            endpointPromise.should.eventually.have.property('statusCode').that.equals(200)
-        ]);
-    });
+    const descriptor: PropertyDescriptor = decorator(event, 'key', new MockPropertyDescriptor().setValue(result));
 
-    it('should properly allow the status override on the result object to be reflected from decorator call', () => {
+    const endpointPromise: Promise<HTTPAPIGatewayProxyResult> = descriptor.value(event, new MockContext(), []);
 
-        const decorator = endpoint('/list', 'get');
-
-        const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
-        const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult().setJSONBody({'hello': 'world'}).setStatusCode(420);
-
-        const descriptor = decorator(event, 'key', new MockPropertyDescriptor().setValue(result));
-
-        const endpointPromise: Promise<HTTPAPIGatewayProxyResult> = descriptor.value(event, new MockContext(), []);
-
-        return Promise.all([
-            endpointPromise.should.eventually.have.property('statusCode'),
-            endpointPromise.should.eventually.have.property('statusCode').that.equals(420)
-        ]);
-    });
-
+    return Promise.all([
+      endpointPromise.should.eventually.have.property('statusCode'),
+      endpointPromise.should.eventually.have.property('statusCode').that.equals(420),
+    ]);
+  });
 });

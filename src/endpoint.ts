@@ -86,6 +86,6 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
       priority
     );
 
-    return descriptor.value;
+    return descriptor;
   };
 }

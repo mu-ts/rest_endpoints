@@ -1,16 +1,35 @@
 import { ClientContext, CognitoIdentity, Context } from 'aws-lambda';
 
 class MockContext implements Context {
-  awsRequestId: string;
-  callbackWaitsForEmptyEventLoop: boolean;
-  clientContext: ClientContext;
-  functionName: string;
-  functionVersion: string;
-  identity: CognitoIdentity;
-  invokedFunctionArn: string;
-  logGroupName: string;
-  logStreamName: string;
-  memoryLimitInMB: number;
+  awsRequestId: string = '';
+  callbackWaitsForEmptyEventLoop: boolean = false;
+  clientContext: ClientContext = {
+    client: {
+      installationId: '',
+      appTitle: '',
+      appVersionName: '',
+      appVersionCode: '',
+      appPackageName: '',
+    },
+    Custom: undefined,
+    env: {
+      platformVersion: '',
+      platform: '',
+      make: '',
+      model: '',
+      locale: '',
+    },
+  };
+  functionName: string = '';
+  functionVersion: string = '';
+  identity: CognitoIdentity = {
+    cognitoIdentityId: '',
+    cognitoIdentityPoolId: '',
+  };
+  invokedFunctionArn: string = '';
+  logGroupName: string = '';
+  logStreamName: string = '';
+  memoryLimitInMB: number = 128;
 
   done(error?: Error, result?: any): void {}
 

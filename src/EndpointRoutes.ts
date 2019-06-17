@@ -8,8 +8,8 @@ const METADATA_KEY: string = '__mu-ts_endpoints';
 const METADATA_VALIDATE_KEY: string = '__mu-ts_validate';
 
 export class EndpointRoutes {
-  private static _routes: Array<EndpointRoute> = [];
-  private static _validations: Array<Validation> = [];
+  private static _routes: EndpointRoute[] = [];
+  private static _validations: Validation[] = [];
   private static _instances: Map<string, any> = new Map();
   private static logger: Logger = LoggerService.named('EndpointRoutes', { fwk: '@mu-ts' });
 
@@ -26,7 +26,7 @@ export class EndpointRoutes {
   /**
    *
    */
-  public static getRoutes(): Array<EndpointRoute> {
+  public static getRoutes(): EndpointRoute[] {
     return EndpointRoutes._routes;
   }
 
@@ -46,11 +46,14 @@ export class EndpointRoutes {
    * @param instanceArgs arguments to supply into the constructor of the instance.
    */
   public static init(target: any, pathPrefix: string = '', instanceArgs?: any[]): void {
-    this.logger.debug({ data: { pathPrefix, target } }, 'init()');
-    const validations: Validation[] = Reflect.getMetadata(METADATA_VALIDATE_KEY, <Function>target || []);
+    this.logger.debug({ data: { pathPrefix, target } }, 'init() -->');
+    const validations: Validation[] = Reflect.getMetadata(METADATA_VALIDATE_KEY, target as Function) || [];
     this._validations = validations;
 
-    const paths: EndpointRoute[] = Reflect.getMetadata(METADATA_KEY, <Function>target) || [];
+    const paths: EndpointRoute[] = Reflect.getMetadata(METADATA_KEY, target as Function) || [];
+
+    this.logger.debug({ data: { paths } }, 'init() -- ');
+
     paths.forEach((path: EndpointRoute) => {
       path.resource = `${pathPrefix || ''}${path.resource || ''}`;
       if (!path.resource || path.resource.trim() === '') {
@@ -63,13 +66,11 @@ export class EndpointRoutes {
 
       this.logger.debug({ data: { path, name: target['name'] } }, 'init() path');
       this._routes.push(path);
-    });
-  }
 
-  private static wrapper(func: Function, args: any[]) {
-    return function() {
-      func.apply(func as any, args);
-    };
+      this.logger.debug({ data: { path } }, 'init() -- ');
+    });
+
+    this.logger.debug({ data: { paths } }, 'init() <-- ');
   }
 
   /**
@@ -77,12 +78,24 @@ export class EndpointRoutes {
    * @param _constructor to invoke a new instance of.
    * @param instanceArgs arguments to supply into the constructor of the instance.
    */
-  private static getInstance(_constructor: any, instanceArgs?: any[]): any {
+  private static getInstance(_constructor: any, _instanceArgs?: any | any[]): any {
+    this.logger.debug({ data: { _constructor, _instanceArgs } }, 'init() --> ');
     let instance = this._instances.get(_constructor['name']);
     if (!instance) {
-      instance = new (_constructor.bind.apply(_constructor, instanceArgs))();
+      this.logger.debug({ data: { namne: _constructor['name'] } }, 'init() -- creating instance ');
+      if (!_instanceArgs) {
+        instance = new _constructor();
+      } else {
+        /**
+         * Apply is 1 based instead of 0 based, so instert a null at the begining
+         * to align values with apply.
+         */
+        const instanceArgs: any | any[] = [undefined].concat(_instanceArgs);
+        instance = new (Function.prototype.bind.apply(_constructor, instanceArgs))();
+      }
       this._instances.set(_constructor['name'], instance);
     }
+    this.logger.debug({ data: { instance: !!instance } }, 'init() <-- ');
     return instance;
   }
 
@@ -131,7 +144,7 @@ export class EndpointRoutes {
     Reflect.defineMetadata(METADATA_VALIDATE_KEY, validators, target.constructor);
   }
 
-  public static getValidators(): Array<Validation> {
+  public static getValidators(): Validation[] {
     return this._validations;
   }
 }
