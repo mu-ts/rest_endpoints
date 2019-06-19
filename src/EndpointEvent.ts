@@ -3,8 +3,8 @@ import { APIGatewayEventRequestContext } from 'aws-lambda';
 export class StringMap {
   private values: { [name: string]: string | undefined };
 
-  constructor(values: { [name: string]: string | undefined }) {
-    this.values = values;
+  constructor(values: { [name: string]: string | undefined } | null) {
+    this.values = values || {};
   }
 
   /**

@@ -1,7 +1,7 @@
-import { Context, Callback } from 'aws-lambda';
+import { Context, Callback, APIGatewayProxyEvent } from 'aws-lambda';
 import { Logger, LoggerService, LogLevelString } from '@mu-ts/logger';
 import { HTTPSerializer } from './HTTPSerializer';
-import { EndpointEvent } from './EndpointEvent';
+import { EndpointEvent, StringMap } from './EndpointEvent';
 import { EndpointRoute } from './EndpointRoute';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { JSONRedactingSerializer } from './JSONRedactingSerializer';
@@ -43,16 +43,30 @@ export abstract class EndpointRouter {
    * @param callback to execute when completed.
    */
   public static async handle(
-    event: EndpointEvent<any>,
+    _event: APIGatewayProxyEvent,
     context: Context,
     callback: Callback<HTTPAPIGatewayProxyResult>
   ): Promise<HTTPAPIGatewayProxyResult> {
     try {
+      this.logger.debug({ data: _event }, 'handle()');
+
+      const event: EndpointEvent<any> =  {
+        rawBody: _event.body,
+        body: _event.body ? EndpointRouter.serializer.deserializeBody(_event.body) : undefined,
+        headers: new StringMap(_event.headers),
+        multiValueHeaders: _event.multiValueHeaders,
+        httpMethod: _event.httpMethod,
+        isBase64Encoded: _event.isBase64Encoded,
+        path: _event.path,
+        pathParameters: new StringMap(_event.pathParameters),
+        queryStringParameters: new StringMap(_event.queryStringParameters),
+        multiValueQueryStringParameters: _event.multiValueQueryStringParameters,
+        stageVariables: new StringMap(_event.stageVariables),
+        requestContext: _event.requestContext,
+        resource: _event.resource
+      };
+
       this.logger.debug({ data: event }, 'handle()');
-
-      event.rawBody = event.body;
-      event.body = event.rawBody ? EndpointRouter.serializer.deserializeBody(event.body) : undefined;
-
       this.logger.debug({ data: { resource: event.resource, httpMethod: event.httpMethod } }, 'handle() request path');
       this.logger.trace({ data: EndpointRoutes.getRoutes() }, 'handle() routes');
 
@@ -110,7 +124,7 @@ export abstract class EndpointRouter {
     } catch (error) {
       return HTTPAPIGatewayProxyResult.setBody({ message: `Critical failure: ${error.message}` })
         .setStatusCode(500)
-        .addHeader('X-REQUEST-ID', event.requestContext.requestId);
+        .addHeader('X-REQUEST-ID', _event.requestContext.requestId);
     }
   }
 
