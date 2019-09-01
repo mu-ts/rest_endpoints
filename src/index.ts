@@ -12,3 +12,4 @@ export * from './HTTPSerializer';
 export * from './JSONRedactingSerializer';
 export * from './Validation';
 export * from './validate';
+export * from './ValidationHandler';
