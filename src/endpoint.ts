@@ -32,17 +32,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         const validationErrors = new Set<string>();
 
         validations.forEach(validation => {
-          const keys: string[] = Object.keys(validation.schema);
-          const dataKeys: string[] = Object.keys(event.body);
-
-          let unmatchedKeys: string[];
-          unmatchedKeys = dataKeys.filter(key => !keys.includes(key));
-
-          if (unmatchedKeys) {
-            unmatchedKeys.forEach(key => validationErrors.add(`'${key}' is not a valid property (not in schema)`));
-          }
-
-          const errors: string[] = EndpointRouter.validationHandler.validate(event.body, validation.schema);
+          const errors: string[] | void = EndpointRouter.validationHandler.validate(event.body, validation.schema);
           if (errors) {
             errors.forEach(item => validationErrors.add(item));
           }

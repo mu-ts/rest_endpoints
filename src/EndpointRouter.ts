@@ -6,6 +6,7 @@ import { EndpointRoute } from './EndpointRoute';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { JSONRedactingSerializer } from './JSONRedactingSerializer';
 import { EndpointRoutes } from './EndpointRoutes';
+import { ValidationHandler } from './ValidationHandler';
 
 /**
  * Singleton that contains all of the routes registered for this
@@ -14,7 +15,7 @@ import { EndpointRoutes } from './EndpointRoutes';
 export abstract class EndpointRouter {
   private static logger: Logger = LoggerService.named('EndpointRouter', { fwk: '@mu-ts' });
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
-  public static validationHandler: any;
+  public static validationHandler: ValidationHandler;
 
   private constructor() {}
 
@@ -128,12 +129,8 @@ export abstract class EndpointRouter {
     }
   }
 
-  static attachValidationHandler(validationHandler: object) {
+  static attachValidationHandler(validationHandler: ValidationHandler) {
     this.logger.debug({ data: { validationHandler } }, 'attachValidationHandler()');
-    if (!validationHandler.hasOwnProperty('validate')) {
-      throw new Error('Invalid validator supplied');
-    } else {
-      this.validationHandler = validationHandler;
-    }
+    this.validationHandler = validationHandler;
   }
 }
