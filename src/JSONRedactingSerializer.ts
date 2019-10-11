@@ -35,7 +35,8 @@ export class JSONRedactingSerializer implements HTTPSerializer {
   }
 
   public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string): string {
-    const toSerialize: HTTPBody = this.redact(responseBody, type, scopes);
+    const toSerialize: HTTPBody = (Array.isArray(responseBody)) ?
+        responseBody.map((aObj) => this.redact(aObj, type, scopes)) : this.redact(responseBody, type, scopes);
     return JSON.stringify(toSerialize);
   }
 
