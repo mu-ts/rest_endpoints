@@ -48,7 +48,7 @@ export class EndpointRoutes {
   public static init(target: any, pathPrefix: string = '', instanceArgs?: any[]): void {
     this.logger.debug({ data: { pathPrefix, target } }, 'init() -->');
     const validations: Validation[] = Reflect.getMetadata(METADATA_VALIDATE_KEY, target as Function) || [];
-    this._validations = validations;
+    this._validations.push(...validations);
 
     const paths: EndpointRoute[] = Reflect.getMetadata(METADATA_KEY, target as Function) || [];
 
