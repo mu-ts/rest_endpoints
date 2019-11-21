@@ -32,9 +32,11 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         const validationErrors = new Set<string>();
 
         validations.forEach(validation => {
-          const errors: string[] | void = EndpointRouter.validationHandler.validate(event.body, validation.schema);
-          if (errors) {
-            errors.forEach(item => validationErrors.add(item));
+          if (!validation.validatorCondition || validation.validatorCondition(event.body, event)) {
+            const errors: string[] | void = EndpointRouter.validationHandler.validate(event.body, validation.schema);
+            if (errors) {
+              errors.forEach(item => validationErrors.add(item));
+            }
           }
         });
 
