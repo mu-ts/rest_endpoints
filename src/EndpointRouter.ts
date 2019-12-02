@@ -110,10 +110,8 @@ export abstract class EndpointRouter {
 
       this.logger.debug({ data: response }, 'handle() response from route');
 
-      const {
-        scope: scopes,
-        'https://authvia.com/role': role,
-      } = event.requestContext.authorizer || {};
+      const scopes = event.requestContext.authorizer && String(event.requestContext.authorizer.scope);
+      const role = event.requestContext.authorizer && String(event.requestContext.authorizer['https://authvia.com/role']);
 
       response.body =
         typeof response.body === 'string'

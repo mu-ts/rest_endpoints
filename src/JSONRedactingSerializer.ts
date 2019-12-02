@@ -51,7 +51,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
       const exceptions = exceptionRedaction.get(key);
       if (exceptions) {
         const exceptArray = exceptions.split(' ');
-        hasExceptions = exceptArray.some( (ex) => (scopes && scopes.includes(ex)) || (role && role.includes(ex)) );
+        hasExceptions = exceptArray.some( (ex) => (scopes && scopes.includes(ex)) || (role && role.includes(ex)) || false );
       }
       if (!redactedKeys.includes(key) || hasExceptions) newObject[key] = toSerialize[key];
       return newObject;
