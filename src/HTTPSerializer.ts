@@ -16,5 +16,5 @@ export interface HTTPSerializer {
    *
    * @param response
    */
-  serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string | null | undefined): string;
+  serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string | null | undefined, role?: string | null | undefined): string;
 }

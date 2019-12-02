@@ -34,21 +34,25 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     return <HTTPBody>JSON.parse(eventBody);
   }
 
-  public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string): string {
+  public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string, role?: string): string {
     const toSerialize: HTTPBody = (Array.isArray(responseBody)) ?
-        responseBody.map((aObj) => this.redact(aObj, type, scopes)) : this.redact(responseBody, type, scopes);
+        responseBody.map((aObj) => this.redact(aObj, type, scopes, role)) : this.redact(responseBody, type, scopes, role);
     return JSON.stringify(toSerialize);
   }
 
-  private redact<T>(toSerialize: HTTPBody, type: string | T, scopes?: string): HTTPBody {
+  private redact<T>(toSerialize: HTTPBody, type: string | T, scopes?: string, role?: string): HTTPBody {
     if (!type) {
       return toSerialize;
     }
     const name = typeof type === 'string' ? type : `${(<any>type)['name'].toLowerCase()}`;
     const redactedKeys: Array<string> = typeRedaction.get(name) || [];
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
-      const exception = exceptionRedaction.get(key);
-      const hasExceptions = scopes && exception && scopes.includes(exception);
+      let hasExceptions = false;
+      const exceptions = exceptionRedaction.get(key);
+      if (exceptions) {
+        const exceptArray = exceptions.split(' ');
+        hasExceptions = exceptArray.some( (ex) => (scopes && scopes.includes(ex)) || (role && role.includes(ex)) );
+      }
       if (!redactedKeys.includes(key) || hasExceptions) newObject[key] = toSerialize[key];
       return newObject;
     }, {});

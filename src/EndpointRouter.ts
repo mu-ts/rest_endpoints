@@ -110,12 +110,15 @@ export abstract class EndpointRouter {
 
       this.logger.debug({ data: response }, 'handle() response from route');
 
-      const scopes = event.requestContext.authorizer && String(event.requestContext.authorizer.scope);
+      const {
+        scope: scopes,
+        'https://authvia.com/role': role,
+      } = event.requestContext.authorizer || {};
 
       response.body =
         typeof response.body === 'string'
           ? response.body
-          : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes);
+          : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes, role);
 
       delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
 
