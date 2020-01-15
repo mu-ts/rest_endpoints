@@ -1,4 +1,4 @@
-import { HTTPBody } from './HTTPBody';
+import { HTTPBody } from './model/HTTPBody';
 import { APIGatewayProxyResult } from 'aws-lambda';
 
 /**

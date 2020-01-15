@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { HTTPSerializer } from './HTTPSerializer';
-import { HTTPBody } from './HTTPBody';
+import { HTTPSerializer } from './interfaces/HTTPSerializer';
+import { HTTPBody } from './model/HTTPBody';
 
 const typeRedaction: Map<string, string[]> = new Map();
 const exceptionRedaction: Map<string, string> = new Map();
@@ -35,8 +35,9 @@ export class JSONRedactingSerializer implements HTTPSerializer {
   }
 
   public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string, role?: string): string {
-    const toSerialize: HTTPBody = (Array.isArray(responseBody)) ?
-        responseBody.map((aObj) => this.redact(aObj, type, scopes, role)) : this.redact(responseBody, type, scopes, role);
+    const toSerialize: HTTPBody = Array.isArray(responseBody)
+      ? responseBody.map(aObj => this.redact(aObj, type, scopes, role))
+      : this.redact(responseBody, type, scopes, role);
     return JSON.stringify(toSerialize);
   }
 
@@ -51,7 +52,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
       const exceptions = exceptionRedaction.get(key);
       if (exceptions) {
         const exceptArray = exceptions.split(' ');
-        hasExceptions = exceptArray.some( (ex) => (scopes && scopes.includes(ex)) || (role && role.includes(ex)) || false );
+        hasExceptions = exceptArray.some(ex => (scopes && scopes.includes(ex)) || (role && role.includes(ex)) || false);
       }
       if (!redactedKeys.includes(key) || hasExceptions) newObject[key] = toSerialize[key];
       return newObject;

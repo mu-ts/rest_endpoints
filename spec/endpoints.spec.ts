@@ -38,9 +38,7 @@ describe('EndpointDecorator', () => {
     const decorator = endpoint('/list', 'get');
 
     const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
-    const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult()
-      .setJSONBody({ hello: 'world' })
-      .setStatusCode(420);
+    const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult().setJSONBody({ hello: 'world' }).setStatusCode(420);
 
     const descriptor: PropertyDescriptor = decorator(event, 'key', new MockPropertyDescriptor().setValue(result));
 

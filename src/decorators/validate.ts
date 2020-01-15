@@ -1,6 +1,6 @@
-import { EventCondition } from './index';
-import { EndpointRoutes } from './EndpointRoutes';
-import { LoggerService, Logger } from '@mu-ts/logger';
+import { EventCondition } from '../index';
+import { EndpointRoutes } from '../EndpointRoutes';
+import { LoggerService, Logger, LoggerConfig } from '@mu-ts/logger';
 
 export function validate(schema: string, condition?: EventCondition): any;
 export function validate(schema: object, condition?: EventCondition): any;
@@ -55,8 +55,10 @@ export function validate(schema: object, condition?: EventCondition): any;
  * @param condition the optional condition, specifying when a specific validation schema should be applied
  */
 export function validate(schema: object | string, condition?: EventCondition) {
-  const logger: Logger = LoggerService.named('validate', { fwk: '@mu-ts' });
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function(target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
+    const parent: string = target.constructor.name;
+    const logConfig: LoggerConfig = { name: `${parent}.validate`, adornments: { '@mu-ts': 'endpoints' } };
+    const logger: Logger = LoggerService.named(logConfig);
     /*
      * If we are provided a schema file (string to url), then attempt to load that file in,
      * otherwise we assume the object provided is a valid schema definition.

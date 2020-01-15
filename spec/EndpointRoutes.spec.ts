@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import 'mocha';
 // import { endpoints } from '../src';
 import { EndpointRoutes } from '../src/EndpointRoutes';
-import { EndpointRoute } from '../src/EndpointRoute';
+import { EndpointRoute } from '../src/interfaces/EndpointRoute';
 import { MockPropertyDescriptor } from './mocks/MockPropertyDescriptor';
 
 const METADATA_KEY: string = '__mu-ts_endpoints';
@@ -49,8 +49,8 @@ describe('EndpointRoutes', () => {
 
   it('get instance with string args.', () => {
     class X {
-      private test: string;
-      private hello: string;
+      public test: string;
+      public hello: string;
       constructor(test: string, hello: string) {
         this.test = test;
         this.hello = hello;

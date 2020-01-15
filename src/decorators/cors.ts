@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { HTTPAction } from './HTTPAction';
-import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
-import { AllowedOrigin } from './AllowedOrigin';
-import { Logger, LoggerService } from '@mu-ts/logger';
+import { HTTPAction } from '../model/HTTPAction';
+import { HTTPAPIGatewayProxyResult } from '../HTTPAPIGatewayProxyResult';
+import { AllowedOrigin } from '../interfaces/AllowedOrigin';
+import { Logger, LoggerService, LoggerConfig } from '@mu-ts/logger';
 
 /**
  * Needs to be placed after the @endpoints decorator.
@@ -16,14 +16,13 @@ export function cors(
   allowedHeaders?: { [name: string]: string },
   allowCredentials: boolean = true
 ) {
-  const logger: Logger = LoggerService.named('cors', { fwk: '@mu-ts' });
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const parent: string = target.constructor.name;
+    const logConfig: LoggerConfig = { name: `${parent}.cors`, adornments: { '@mu-ts': 'endpoints' } };
+    const logger: Logger = LoggerService.named(logConfig);
     const targetMethod = descriptor.value;
 
-    logger.debug(
-      { data: { allowedOrigin, allowedActions, allowedHeaders, allowCredentials, propertyKey } },
-      'cors() - decorating function.'
-    );
+    logger.debug({ allowedOrigin, allowedActions, allowedHeaders, allowCredentials, propertyKey }, 'cors()', 'decorating function');
 
     descriptor.value = function() {
       const event: APIGatewayProxyEvent = arguments[0];

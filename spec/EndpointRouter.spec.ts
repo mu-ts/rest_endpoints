@@ -1,9 +1,24 @@
 import { expect } from 'chai';
 import 'mocha';
-import { EndpointRouter } from '../src';
+import { EndpointRouter } from '../src/';
+
+// describe('LoggerService', () => {
+//   describe('setLoggerFactory()', () => {
+//     it('set a valid LoggerFactory', () => {
+//       expect(() => LoggerService.setLoggerFactory(new MockLoggerFactory())).to.not.throw(Error);
+//     });
+
+//     it('fail if LoggerFactory is invalid', () => {
+//       expect(() => LoggerService.setLoggerFactory({} as LoggerFactory)).to.throw(Error);
+//     });
+//   });
 
 describe('EndpointRouter', () => {
-  it('should attach validations to proper endpoints', () => {});
+  describe('new instance', () => {
+    it('should create without errors', () => {
+      expect(() => new (EndpointRouter as any)()).to.not.throw(Error);
+    });
+  });
 
   it('should not have validation on a specific endpoint if not defined', () => {});
 
