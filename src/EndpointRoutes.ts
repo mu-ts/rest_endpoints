@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Logger, LoggerService, LogLevelString } from '@mu-ts/logger';
-import { EventCondition } from './EventCondition';
-import { EndpointRoute } from './EndpointRoute';
-import { Validation } from './Validation';
+import { EventCondition } from './interfaces/EventCondition';
+import { EndpointRoute } from './interfaces/EndpointRoute';
+import { Validation } from './interfaces/Validation';
 
 const METADATA_KEY: string = '__mu-ts_endpoints';
 const METADATA_VALIDATE_KEY: string = '__mu-ts_validate';
@@ -11,7 +11,7 @@ export class EndpointRoutes {
   private static _routes: EndpointRoute[] = [];
   private static _validations: Validation[] = [];
   private static _instances: Map<string, any> = new Map();
-  private static logger: Logger = LoggerService.named('EndpointRoutes', { fwk: '@mu-ts' });
+  private static logger: Logger = LoggerService.named({ name: 'EndpointRoutes', adornments: { '@mu-ts': 'endpoints' } });
 
   private constructor() {}
 
@@ -20,7 +20,7 @@ export class EndpointRoutes {
    * @param headers to set on every request.
    */
   public static setLogLevel(level: LogLevelString): void {
-    this.logger.level(level);
+    this.logger.setLevel(level);
   }
 
   /**
@@ -35,7 +35,7 @@ export class EndpointRoutes {
    * @param condition to execute against array of routes to determine if the route is located.
    */
   public static find(condition: Function): EndpointRoute | undefined {
-    this.logger.debug({ data: { condition } }, 'find()');
+    this.logger.debug({ condition }, 'find()');
     return this._routes.find((value: EndpointRoute, index: number) => condition(value, index));
   }
 
@@ -46,13 +46,13 @@ export class EndpointRoutes {
    * @param instanceArgs arguments to supply into the constructor of the instance.
    */
   public static init(target: any, pathPrefix: string = '', instanceArgs?: any[]): void {
-    this.logger.debug({ data: { pathPrefix, target } }, 'init() -->');
+    this.logger.debug({ data: { pathPrefix, target } }, 'init()', ' --> ');
     const validations: Validation[] = Reflect.getMetadata(METADATA_VALIDATE_KEY, target as Function) || [];
     this._validations.push(...validations);
 
     const paths: EndpointRoute[] = Reflect.getMetadata(METADATA_KEY, target as Function) || [];
 
-    this.logger.debug({ data: { paths } }, 'init() -- ');
+    this.logger.debug({ data: { paths } }, 'init()', ' -- ');
 
     paths.forEach((path: EndpointRoute) => {
       path.resource = `${pathPrefix || ''}${path.resource || ''}`;
@@ -64,10 +64,10 @@ export class EndpointRoutes {
 
       path.endpoint = path.endpoint.bind(_instance);
 
-      this.logger.debug({ data: { path, name: target['name'] } }, 'init() path');
+      this.logger.debug({ data: { path, name: target['name'] } }, 'init()', 'path');
       this._routes.push(path);
 
-      this.logger.debug({ data: { path } }, 'init() -- ');
+      this.logger.debug({ data: { path } }, 'init()', ' <-- ');
     });
 
     this.logger.debug({ data: { paths } }, 'init() <-- ');
@@ -79,10 +79,10 @@ export class EndpointRoutes {
    * @param instanceArgs arguments to supply into the constructor of the instance.
    */
   private static getInstance(_constructor: any, _instanceArgs?: any | any[]): any {
-    this.logger.debug({ data: { _constructor, _instanceArgs } }, 'init() --> ');
+    this.logger.debug({ data: { _constructor, _instanceArgs } }, 'getInstance()', '--> ');
     let instance = this._instances.get(_constructor['name']);
     if (!instance) {
-      this.logger.debug({ data: { namne: _constructor['name'] } }, 'init() -- creating instance ');
+      this.logger.debug({ data: { namne: _constructor['name'] } }, 'getInstance()', ' -- creating instance ');
       if (!_instanceArgs) {
         instance = new _constructor();
       } else {
@@ -95,7 +95,7 @@ export class EndpointRoutes {
       }
       this._instances.set(_constructor['name'], instance);
     }
-    this.logger.debug({ data: { instance: !!instance } }, 'init() <-- ');
+    this.logger.debug({ data: { instance: !!instance } }, 'getInstance()', ' <-- ');
     return instance;
   }
 
@@ -135,7 +135,7 @@ export class EndpointRoutes {
       priority: priority || 0,
     });
     Reflect.defineMetadata(METADATA_KEY, paths, target.constructor);
-    this.logger.debug({ data: { resource, action, condition, priority } }, 'register() path');
+    this.logger.debug({ data: { resource, action, condition, priority } }, 'register()', 'path');
   }
 
   public static registerValidation(target: any, validation: Validation): void {

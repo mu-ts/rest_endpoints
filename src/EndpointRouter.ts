@@ -1,19 +1,17 @@
-import { Context, Callback, APIGatewayProxyEvent } from 'aws-lambda';
-import { Logger, LoggerService, LogLevelString } from '@mu-ts/logger';
-import { HTTPSerializer } from './HTTPSerializer';
-import { EndpointEvent, StringMap } from './EndpointEvent';
-import { EndpointRoute } from './EndpointRoute';
+import { Context, APIGatewayProxyEvent } from 'aws-lambda';
+import { Logger, LoggerService, LogLevelString, duration, inOut } from '@mu-ts/logger';
+import { HTTPSerializer, EndpointRoute, ValidationHandler } from './interfaces';
+import { EndpointEvent, StringMap } from './model';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { JSONRedactingSerializer } from './JSONRedactingSerializer';
 import { EndpointRoutes } from './EndpointRoutes';
-import { ValidationHandler } from './ValidationHandler';
 
 /**
  * Singleton that contains all of the routes registered for this
  * endpoint.
  */
 export abstract class EndpointRouter {
-  private static logger: Logger = LoggerService.named('EndpointRouter', { fwk: '@mu-ts' });
+  private static logger: Logger = LoggerService.named({ name: 'EndpointRouter', adornments: { '@mu-ts': 'endpoints' } });
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
   public static validationHandler: ValidationHandler;
 
@@ -24,7 +22,7 @@ export abstract class EndpointRouter {
    * @param headers to set on every request.
    */
   public static setLogLevel(level: LogLevelString): void {
-    this.logger.level(level);
+    this.logger.setLevel(level);
     EndpointRoutes.setLogLevel(level);
   }
 
@@ -33,7 +31,7 @@ export abstract class EndpointRouter {
    * @param headers to set on every request.
    */
   public static setDefaultHeaders(headers: { [name: string]: boolean | number | string }): void {
-    this.logger.info({ data: headers }, 'setDefaultHeaders()');
+    this.logger.info({ headers }, 'setDefaultHeaders()');
     HTTPAPIGatewayProxyResult.setDefaultHeaders(headers);
   }
 
@@ -43,15 +41,13 @@ export abstract class EndpointRouter {
    * @param context of the invocation.
    * @param callback to execute when completed.
    */
-  public static async handle(
-    _event: APIGatewayProxyEvent,
-    context: Context,
-    callback: Callback<HTTPAPIGatewayProxyResult>
-  ): Promise<HTTPAPIGatewayProxyResult> {
+  @duration()
+  @inOut()
+  public static async handle(_event: APIGatewayProxyEvent, context: Context): Promise<HTTPAPIGatewayProxyResult> {
     try {
-      this.logger.debug({ data: _event }, 'handle()');
+      this.logger.trace(_event, 'handle()', 'Start -->');
 
-      const event: EndpointEvent<any> =  {
+      const event: EndpointEvent<any> = {
         rawBody: _event.body,
         body: _event.body ? EndpointRouter.serializer.deserializeBody(_event.body) : undefined,
         headers: new StringMap(_event.headers),
@@ -64,18 +60,19 @@ export abstract class EndpointRouter {
         multiValueQueryStringParameters: _event.multiValueQueryStringParameters,
         stageVariables: new StringMap(_event.stageVariables),
         requestContext: _event.requestContext,
-        resource: _event.resource
+        resource: _event.resource,
       };
 
-      this.logger.debug({ data: event }, 'handle()');
-      this.logger.debug({ data: { resource: event.resource, httpMethod: event.httpMethod } }, 'handle() request path');
-      this.logger.trace({ data: EndpointRoutes.getRoutes() }, 'handle() routes');
+      this.logger.trace(event, 'handle()', 'event');
+      this.logger.trace({ data: EndpointRoutes.getRoutes() }, 'handle()', ' routes');
+
+      this.logger.debug({ resource: event.resource, httpMethod: event.httpMethod }, 'handle()', 'request path');
 
       const routeOptions: Array<EndpointRoute> = EndpointRoutes.getRoutes()
         .filter((route: EndpointRoute) => route.resource === event.resource)
         .filter((route: EndpointRoute) => route.action === event.httpMethod)
         .filter((route: EndpointRoute) => {
-          this.logger.trace({ data: route }, 'check condition');
+          this.logger.trace(route, 'handle()', 'check condition');
           if (route.condition) {
             return route.condition(event.body, event);
           }
@@ -114,13 +111,11 @@ export abstract class EndpointRouter {
       const role = event.requestContext.authorizer && String(event.requestContext.authorizer['https://authvia.com/role']);
 
       response.body =
-        typeof response.body === 'string'
-          ? response.body
-          : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes, role);
+        typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes, role);
 
       delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
 
-      this.logger.debug({ data: response }, 'handle() response after serializing');
+      this.logger.debug({ data: response }, 'handle()', 'response after serializing');
 
       return response;
     } catch (error) {

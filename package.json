@@ -1,21 +1,21 @@
 {
   "name": "@mu-ts/endpoints",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Simple REST endpoint and action routing.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./lib/index",
+  "types": "./lib/index",
   "author": "matt.filion@gmail.com",
   "homepage": "https://github.com/mu-ts/rest_endpoints#readme",
   "scripts": {
-    "lint": "tslint -p .",
     "build": "tsc -p .",
-    "build:live": "tsc -w -p .",
-    "prepare": "npm run build",
-    "test": "nyc mocha -r ts-node/register test/**/*.spec.ts",
-    "coverage": "nyc report --reporter=lcov"
+    "test": "nyc mocha -r ts-node/register spec/**/*.spec.ts",
+    "coverage": "nyc report --reporter=lcov",
+    "coverage-export": "nyc report --reporter=text-lcov > coverage.lcov",
+    "lint": "tslint -p .",
+    "clean": "rm -rf coverage lib .nyc_output"
   },
   "files": [
-    "dist/*",
+    "lib/*",
     "README.md",
     "LICENSE",
     "CODE_OF_CONDUCT.md"
@@ -41,24 +41,25 @@
     "url": "https://github.com/mu-ts/rest_endpoints/issues"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.27",
-    "@types/chai": "^4.1.7",
-    "@types/chai-as-promised": "^7.1.0",
+    "@types/aws-lambda": "^8.10.39",
+    "@types/chai": "^4.2.7",
+    "@types/chai-as-promised": "^7.1.2",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^11.13.14",
+    "@types/node": "^11.15.4",
+    "aws-lambda": "^1.0.5",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "codecov": "^3.5.0",
-    "mocha": "^6.1.4",
+    "codecov": "^3.6.1",
+    "mocha": "^6.2.2",
     "nyc": "^14.1.1",
-    "source-map-support": "^0.5.12",
-    "ts-node": "^8.2.0",
-    "tslint": "^5.17.0",
+    "source-map-support": "^0.5.16",
+    "ts-node": "^8.6.2",
+    "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.7.4"
   },
   "dependencies": {
-    "@mu-ts/logger": "^2.1.1",
+    "@mu-ts/logger": "^3.0.3",
     "reflect-metadata": "^0.1.13"
   },
   "nyc": {

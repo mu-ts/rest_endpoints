@@ -1,11 +1,11 @@
-import { EndpointRouter } from './EndpointRouter';
-import { HTTPAction } from './HTTPAction';
-import { Validation } from './Validation';
-import { EndpointEvent } from './EndpointEvent';
-import { EventCondition } from './EventCondition';
-import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
-import { EndpointRoutes } from './EndpointRoutes';
-import { LoggerService, Logger } from '@mu-ts/logger';
+import { EndpointRouter } from '../EndpointRouter';
+import { HTTPAction } from '../model/HTTPAction';
+import { Validation } from '../interfaces/Validation';
+import { EndpointEvent } from '../model/EndpointEvent';
+import { EventCondition } from '../interfaces/EventCondition';
+import { HTTPAPIGatewayProxyResult } from '../HTTPAPIGatewayProxyResult';
+import { EndpointRoutes } from '../EndpointRoutes';
+import { LoggerService, Logger, LoggerConfig } from '@mu-ts/logger';
 
 /**
  *
@@ -15,11 +15,13 @@ import { LoggerService, Logger } from '@mu-ts/logger';
  * @param priority of this endpoint vs other registered endpoints.
  */
 export function endpoint(action: HTTPAction | string, path?: string, condition?: EventCondition, priority?: number) {
-  const logger: Logger = LoggerService.named('endpoint', { fwk: '@mu-ts' });
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
+    const parent: string = target.constructor.name;
+    const logConfig: LoggerConfig = { name: `${parent}.cors`, adornments: { '@mu-ts': 'endpoints' } };
+    const logger: Logger = LoggerService.named(logConfig);
     const targetMethod = descriptor.value;
 
-    logger.debug({ data: { action, path, condition, priority, propertyKey } }, 'endpoint() - decorating function.');
+    logger.debug({ action, path, condition, priority, propertyKey }, 'endpoint()', 'decorating function');
 
     descriptor.value = function(): Promise<HTTPAPIGatewayProxyResult> {
       const event: EndpointEvent<any> = arguments[0];
@@ -68,15 +70,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
 
     logger.debug({ data: { path, action: ('' + action).toUpperCase() } }, 'endpoint() registering');
 
-    EndpointRoutes.register(
-      target,
-      path,
-      ('' + action).toUpperCase(),
-      descriptor.value,
-      descriptor,
-      condition,
-      priority
-    );
+    EndpointRoutes.register(target, path, ('' + action).toUpperCase(), descriptor.value, descriptor, condition, priority);
 
     return descriptor;
   };
