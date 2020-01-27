@@ -1,4 +1,4 @@
-import { HTTPAPIGatewayProxyResult, HTTPBody } from 'index';
+import { HTTPAPIGatewayProxyResult, HTTPBody } from '../../src';
 
 class MockHTTPAPIGatewayProxyResult implements HTTPAPIGatewayProxyResult {
   body: string = 'ERROR';
@@ -7,10 +7,12 @@ class MockHTTPAPIGatewayProxyResult implements HTTPAPIGatewayProxyResult {
   multiValueHeaders: { [p: string]: Array<boolean | number | string> } = { key: ['value'] };
   statusCode: number = 200;
 
+  //@ts-ignore
   addHeader(name: string, value: boolean | number | string): HTTPAPIGatewayProxyResult {
     return this;
   }
 
+  //@ts-ignore
   addHeaders(headers: { [p: string]: boolean | number | string }): HTTPAPIGatewayProxyResult {
     return this;
   }

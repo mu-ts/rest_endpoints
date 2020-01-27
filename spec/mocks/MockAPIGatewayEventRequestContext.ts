@@ -20,6 +20,7 @@ class MockAPIGatewayEventRequestContext implements APIGatewayEventRequestContext
     cognitoAuthenticationType: null;
     cognitoIdentityId: null;
     cognitoIdentityPoolId: null;
+    principalOrgId: null;
     sourceIp: 'string';
     user: null;
     userAgent: null;
@@ -37,6 +38,7 @@ class MockAPIGatewayEventRequestContext implements APIGatewayEventRequestContext
   stage: string = '';
   constructor() {
     this.identity = {
+      principalOrgId: null,
       accessKey: null,
       accountId: null,
       apiKey: null,

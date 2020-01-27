@@ -29,10 +29,12 @@ class MockContext implements Context {
   invokedFunctionArn: string = '';
   logGroupName: string = '';
   logStreamName: string = '';
-  memoryLimitInMB: number = 128;
+  memoryLimitInMB: string = '128';
 
+  //@ts-ignore
   done(error?: Error, result?: any): void {}
 
+  //@ts-ignore
   fail(error: Error | string): void {}
 
   getRemainingTimeInMillis(): number {
@@ -41,6 +43,7 @@ class MockContext implements Context {
 
   succeed(messageOrObject: any): void;
   succeed(message: string, object: any): void;
+  //@ts-ignore
   succeed(messageOrObject: any | string, object?: any): void {}
 }
 
