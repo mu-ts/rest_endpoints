@@ -17,7 +17,7 @@ import { LoggerService, Logger, LoggerConfig } from '@mu-ts/logger';
 export function endpoint(action: HTTPAction | string, path?: string, condition?: EventCondition, priority?: number) {
   return function(target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
     const parent: string = target.constructor.name;
-    const logConfig: LoggerConfig = { name: `${parent}.cors`, adornments: { '@mu-ts': 'endpoints' } };
+    const logConfig: LoggerConfig = { name: `${parent}.endpoint`, adornments: { '@mu-ts': 'endpoints' } };
     const logger: Logger = LoggerService.named(logConfig);
     const targetMethod = descriptor.value;
 
