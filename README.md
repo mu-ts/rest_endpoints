@@ -1,3 +1,40 @@
+# Proposal
+
+Participate with a common 'router' that will pickup events from any source, within the same function.
+Hooks to run before or after execution.
+
+```
+Router.addBeforeEach('clearTokens', Bearer.clear);
+Router.addAfterEach('clearTokens', Bearer.clear);
+
+export const handler = (event:any) => Router.handle(event);
+```
+
+Cleaer, cleaner validation.
+
+```
+class User {
+  @generated()
+  id: string;
+
+  @required()
+  name: string;
+
+  @required()
+  age: number;
+}
+
+@endpoints('/base-path')
+@validate('create', User)
+class MyEndpoints {
+  @endpoint()
+  @validation
+  public async create(event: APIGatewayEvent): Promise<APIGatewayResponse> {
+
+  }
+}
+```
+
 # Summary
 
 Simple REST endpoint and action routing.
