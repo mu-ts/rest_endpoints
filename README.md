@@ -34,7 +34,16 @@ Function decorators to change the response appropriately.
 
 ```
 @cors(logic?:CORSFunction) // Adds cors headers, but gets a function that can be executed to determine the proper values.
-@secureHeaders(overrides:{}) // To add headers that add headers to lock down the endpoint.
+@secureHeaders({
+  'Server': 'Super awesome',
+  'X-Powered-By': 'Super awesome',
+  'Cache-Control': 'max-age=86400',
+  'Content-Type': 'application/json',
+  'Set-Cookie': 'Secure',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'X-Content-Type-Options': 'nosniff',
+}) // To add headers that add headers to lock down the endpoint.
 ```
 
 Simpler validation, with access to complex schema definitions via 
