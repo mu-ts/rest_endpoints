@@ -3,36 +3,83 @@
 Participate with a common 'router' that will pickup events from any source, within the same function.
 Hooks to run before or after execution.
 
+Constructor and unit testing logic is not great right now.
+
+? `@mu-ts/ioc` ?
+Some sort of IoC to add objects into instances created by the Router.
+
 ```
-Router.addBeforeEach('clearTokens', Bearer.clear);
-Router.addAfterEach('clearTokens', Bearer.clear);
+@provided(type: T) 
+
+@inject(type: T)
+
+```
+
+`@mu-ts/router`
+Router defaults values.
+Lazy loading, don't instantiate instances until they are used.
+
+```
+Router.defaults.ignoreIf(Function)
+Router.defaults.beforeEach('clearTokens', Function);
+Router.defaults.afterEach('clearTokens', Function);
+Router.defaults.headers({})
+
+Router.defaults.onError(ErrorHandler) // Optional code to execute if an error is encountered. Do we need to do this per event type?
 
 export const handler = (event:any) => Router.handle(event);
 ```
 
-Cleaer, cleaner validation.
+Function decorators to change the response appropriately.
 
 ```
-class User {
-  @generated()
-  id: string;
+@cors(logic?:CORSFunction) // Adds cors headers, but gets a function that can be executed to determine the proper values.
+@secureHeaders(overrides:{}) // To add headers that add headers to lock down the endpoint.
+```
 
-  @required()
-  name: string;
+Simpler validation, with access to complex schema definitions via 
 
-  @required()
-  age: number;
+```
+interface SchemaBased {
+  library?: 'ajv', // If not set as router default.
+  schema: object
 }
 
-@endpoints('/base-path')
-@validate('create', User)
+@endpoints(path:'/myapp') // --> Router.register('type', {options}, constructor)
 class MyEndpoints {
-  @endpoint()
-  @validation
+  @endpoint({
+    action: HttpAction.POST,
+    path: '/users',
+    onlyIf: OnlyIf(event) => {} // Only executes this endpoint mapping if the function returns true, including validation.
+    validation: User
+    -- or --
+    validation: {
+      schema: require('./x.json')
+    },
+  })
   public async create(event: APIGatewayEvent): Promise<APIGatewayResponse> {
 
   }
 }
+```
+Attribute decorators for validation and serialization.
+
+```
+class User {
+  @generated(generator?:IDGenerator)
+  id: string;
+
+  @required(message?:'To show on failure')
+  name: string;
+
+  @required(message?:'To show on failure')
+  age: number;
+
+  @redact(unless?:RedactFunction)
+  @required(message?:'To show on failure')
+  gender: Pronoun;
+}
+
 ```
 
 # Summary
