@@ -1,7 +1,7 @@
 import 'mocha';
 import { endpoint, HTTPAPIGatewayProxyResult } from '../src';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { MockAPIGatewayProxyEvent } from './mocks/MockAPIGatewayProxyEvent';
+import { MockAPIGatewayEvent } from './mocks/MockAPIGatewayEvent';
 import { MockContext } from './mocks/MockContext';
 import { MockHTTPAPIGatewayProxyResult } from './mocks/MockHTTPAPIGatewayProxyResult';
 
@@ -17,7 +17,7 @@ describe('EndpointDecorator', () => {
     class X {
       test() {}
     }
-    const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
+    const event: APIGatewayProxyEvent = new MockAPIGatewayEvent();
     const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult().setJSONBody({ hello: 'world' });
 
     const decorator: Function = endpoint('/list', 'get');
@@ -37,7 +37,7 @@ describe('EndpointDecorator', () => {
   it('should properly allow the status override on the result object to be reflected from decorator call', () => {
     const decorator = endpoint('/list', 'get');
 
-    const event: APIGatewayProxyEvent = new MockAPIGatewayProxyEvent();
+    const event: APIGatewayProxyEvent = new MockAPIGatewayEvent();
     const result: HTTPAPIGatewayProxyResult = new MockHTTPAPIGatewayProxyResult().setJSONBody({ hello: 'world' }).setStatusCode(420);
 
     const descriptor: PropertyDescriptor = decorator(event, 'key', new MockPropertyDescriptor().setValue(result));
