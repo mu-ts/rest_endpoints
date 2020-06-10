@@ -59,7 +59,7 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
-    "@mu-ts/logger": "^3.0.10",
+    "@mu-ts/logger": "^3.0.11",
     "reflect-metadata": "^0.1.13"
   },
   "nyc": {

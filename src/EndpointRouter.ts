@@ -1,25 +1,17 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import {
-  CreditCardLoggerFilter,
   duration,
   inOut,
   Logger,
   LoggerFilter,
   LoggerService,
   LogLevelString,
-  SensitiveNameLoggerFilter
 } from '@mu-ts/logger';
 import { EndpointRoute, HTTPSerializer, ValidationHandler } from './interfaces';
 import { EndpointEvent, StringMap } from './model';
 import { HTTPAPIGatewayProxyResult } from './HTTPAPIGatewayProxyResult';
 import { JSONRedactingSerializer } from './JSONRedactingSerializer';
 import { EndpointRoutes } from './EndpointRoutes';
-
-/**
- * Have these filters registered by default
- */
-LoggerService.registerFilter(new CreditCardLoggerFilter());
-LoggerService.registerFilter(new SensitiveNameLoggerFilter());
 
 /**
  * Singleton that contains all of the routes registered for this
