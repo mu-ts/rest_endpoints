@@ -32,7 +32,7 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
    * @param defaultHeaders To set when a new HTTPAPIGatewayProxyResult is created
    */
   public static setDefaultHeaders(defaultHeaders: { [name: string]: boolean | number | string }): void {
-    this._defaultHeaders = defaultHeaders || {};
+    this._defaultHeaders = Object.assign(defaultHeaders) || {};
   }
 
   /**
@@ -87,7 +87,7 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
    * @param value of the header to add.
    */
   public addHeader(name: string, value: boolean | number | string): HTTPAPIGatewayProxyResult {
-    if (!this.headers) this.headers = HTTPAPIGatewayProxyResult._defaultHeaders || {};
+    if (!this.headers) this.headers = Object.assign(HTTPAPIGatewayProxyResult._defaultHeaders) || {};
     this.headers[name] = value;
     return this;
   }
@@ -98,7 +98,7 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
    * @param headers to add.
    */
   public addHeaders(headers: { [name: string]: boolean | number | string }): HTTPAPIGatewayProxyResult {
-    if (!this.headers) this.headers = headers;
+    if (!this.headers) this.headers = Object.assign(headers);
     else {
       Object.keys(headers).forEach((key: string) => this.addHeader(key, headers[key]));
     }
