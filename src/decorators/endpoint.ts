@@ -15,7 +15,7 @@ import { LoggerService, Logger, LoggerConfig } from '@mu-ts/logger';
  * @param priority of this endpoint vs other registered endpoints.
  */
 export function endpoint(action: HTTPAction | string, path?: string, condition?: EventCondition, priority?: number) {
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
     const parent: string = target.constructor.name;
     const logConfig: LoggerConfig = { name: `${parent}.endpoint`, adornments: { '@mu-ts': 'endpoints' } };
     const logger: Logger = LoggerService.named(logConfig);
@@ -23,7 +23,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
 
     logger.debug({ action, path, condition, priority, propertyKey }, 'endpoint()', 'decorating function');
 
-    descriptor.value = function(): Promise<HTTPAPIGatewayProxyResult> {
+    descriptor.value = function (): Promise<HTTPAPIGatewayProxyResult> {
       const event: EndpointEvent<any> = arguments[0];
       const validations: Array<Validation> = arguments[2];
 
@@ -33,11 +33,11 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
       if (validations) {
         const validationErrors = new Set<string>();
 
-        validations.forEach(validation => {
+        validations.forEach((validation) => {
           if (!validation.validatorCondition || validation.validatorCondition(event.body, event)) {
             const errors: string[] | void = EndpointRouter.validationHandler.validate(event.body, validation.schema);
             if (errors) {
-              errors.forEach(item => validationErrors.add(item));
+              errors.forEach((item) => validationErrors.add(item));
             }
           }
         });
@@ -48,6 +48,8 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
           return Promise.resolve(
             HTTPAPIGatewayProxyResult.setBody({ message: Array.from(validationErrors) })
               .setStatusCode(400)
+              .addHeader('Access-Control-Allow-Origin', "'*'")
+              .addHeader('Access-Control-Allow-Headers', "'*'")
               .addHeader('X-REQUEST-ID', event.requestContext.requestId)
           );
         }
@@ -62,9 +64,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         })
         .catch((error: any) => {
           logger.error(error, 'endpoint() - problem executing function');
-          return HTTPAPIGatewayProxyResult.setBody({ message: error.message })
-            .setStatusCode(501)
-            .addHeader('X-REQUEST-ID', event.requestContext.requestId);
+          return HTTPAPIGatewayProxyResult.setBody({ message: error.message }).setStatusCode(501).addHeader('X-REQUEST-ID', event.requestContext.requestId);
         });
     };
 
