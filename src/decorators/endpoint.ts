@@ -48,8 +48,8 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
           return Promise.resolve(
             HTTPAPIGatewayProxyResult.setBody({ message: Array.from(validationErrors) })
               .setStatusCode(400)
-              .addHeader('Access-Control-Allow-Origin', "'*'")
-              .addHeader('Access-Control-Allow-Headers', "'*'")
+              .addHeader('Access-Control-Allow-Origin', '*')
+              .addHeader('Access-Control-Allow-Headers', '*')
               .addHeader('X-REQUEST-ID', event.requestContext.requestId)
           );
         }
