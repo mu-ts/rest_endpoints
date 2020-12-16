@@ -13,10 +13,10 @@ import { Logger, LoggerService, LoggerConfig } from '@mu-ts/logger';
 export function cors(
   allowedOrigin: string | AllowedOrigin,
   allowedActions?: Array<HTTPAction | string>,
-  allowedHeaders?: { [name: string]: string },
+  allowedHeaders?: Array<string>,
   allowCredentials: boolean = true
 ) {
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const parent: string = target.constructor.name;
     const logConfig: LoggerConfig = { name: `${parent}.cors`, adornments: { '@mu-ts': 'endpoints' } };
     const logger: Logger = LoggerService.named(logConfig);
@@ -24,7 +24,7 @@ export function cors(
 
     logger.debug({ allowedOrigin, allowedActions, allowedHeaders, allowCredentials, propertyKey }, 'cors()', 'decorating function');
 
-    descriptor.value = function() {
+    descriptor.value = function () {
       const event: APIGatewayProxyEvent = arguments[0];
 
       return targetMethod.apply(this, arguments).then((response: HTTPAPIGatewayProxyResult) => {
@@ -35,8 +35,10 @@ export function cors(
           'Access-Control-Allow-Credentials': allowCredentials ? 'true' : 'false',
         });
 
-        if (allowedActions) response.addHeader('Access-Control-Allow-Methods', allowedActions.join(', '));
-        if (allowedHeaders) response.addHeader('Access-Control-Allow-Headers', Object.keys(allowedHeaders).join(', '));
+        if (allowedActions)
+          response.addHeader('Access-Control-Allow-Methods', allowedActions.length === 1 ? allowedActions[0] : Object.keys(allowedActions).join(', '));
+        if (allowedHeaders)
+          response.addHeader('Access-Control-Allow-Headers', allowedHeaders.length === 1 ? allowedHeaders[0] : Object.keys(allowedHeaders).join(', '));
 
         return response;
       });
