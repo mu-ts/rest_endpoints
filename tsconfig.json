@@ -13,7 +13,7 @@
     "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./lib",
-    "types": ["node"],
+    "types": ["node"]
   },
   "exclude": ["node_modules", "*.spec/**/*.spec.ts"],
   "include": ["src/**/*"]
