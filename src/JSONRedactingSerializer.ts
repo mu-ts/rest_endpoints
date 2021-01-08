@@ -46,15 +46,13 @@ export class JSONRedactingSerializer implements HTTPSerializer {
       return toSerialize;
     }
     const name = typeof type === 'string' ? type : `${(<any>type)['name'].toLowerCase()}`;
-    const redactedKeys: Array<string> = typeRedaction.get(name) || [];
+    const redactedKeys: string[] = typeRedaction.get(name);
+    const scopesArray: string[] = scopes?.split(' ');
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
-      let hasExceptions = false;
-      const exceptions = exceptionRedaction.get(key);
-      if (exceptions) {
-        const exceptArray = exceptions.split(' ');
-        hasExceptions = exceptArray.some(ex => (scopes && scopes.includes(ex)) || (role && role.includes(ex)) || false);
-      }
-      if (!redactedKeys.includes(key) || hasExceptions) newObject[key] = toSerialize[key];
+      const exceptArray: string[] = exceptionRedaction.get(key)?.split(' ');
+      const hasException: boolean = exceptArray?.some(except => scopesArray?.includes(except) || role === except) || false;
+      const shouldInclude: boolean = !redactedKeys?.includes(key) || hasException;
+      if (shouldInclude) newObject[key] = toSerialize[key];
       return newObject;
     }, {});
   }
