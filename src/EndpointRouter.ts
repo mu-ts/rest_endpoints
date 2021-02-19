@@ -140,7 +140,6 @@ export abstract class EndpointRouter {
   }
 
   static attachValidationHandler(validationHandler: ValidationHandler) {
-    this.logger.debug({ data: { validationHandler } }, 'attachValidationHandler()');
     this.validationHandler = validationHandler;
   }
 }
