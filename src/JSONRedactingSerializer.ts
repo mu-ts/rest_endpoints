@@ -1,15 +1,16 @@
 import 'reflect-metadata';
-import { HTTPSerializer } from './interfaces/HTTPSerializer';
-import { HTTPBody } from './model/HTTPBody';
+import { HTTPSerializer } from './interfaces';
+import { HTTPBody } from './model';
 
 const typeRedaction: Map<string, string[]> = new Map();
-const exceptionRedaction: Map<string, string> = new Map();
+const redactionExceptions: Map<string, string> = new Map();
+const redactionAdjustments: Map<string, {[role: string]: (target: any) => any}> = new Map();
 
 /**
  * Used to ensure that values in a model are removed from the response
  * when it is being serialized.
  */
-export function redacted(exceptions?: string) {
+export function redacted(exceptions?: string, adjustments?: {[role: string]: (target: any) => any}) {
   return function(target: any, propertyToRedact: string) {
     const name = target.constructor.name.toLowerCase();
 
@@ -17,7 +18,10 @@ export function redacted(exceptions?: string) {
     redactedKeys.push(propertyToRedact);
     typeRedaction.set(name, redactedKeys);
     if (exceptions) {
-      exceptionRedaction.set(propertyToRedact, exceptions);
+      redactionExceptions.set(propertyToRedact, exceptions);
+    }
+    if (adjustments) {
+      redactionAdjustments.set(propertyToRedact, adjustments);
     }
   };
 }
@@ -49,10 +53,16 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     const redactedKeys: string[] = typeRedaction.get(name);
     const scopesArray: string[] = scopes?.split(' ');
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
-      const exceptArray: string[] = exceptionRedaction.get(key)?.split(' ');
+      const exceptArray: string[] = redactionExceptions.get(key)?.split(' ');
       const hasException: boolean = exceptArray?.some(except => scopesArray?.includes(except) || role === except) || false;
       const shouldInclude: boolean = !redactedKeys?.includes(key) || hasException;
-      if (shouldInclude) newObject[key] = toSerialize[key];
+      if (shouldInclude) {
+        if (redactionAdjustments.get(key)?.[role]) {
+          newObject[key] = redactionAdjustments.get(key)[role](toSerialize[key]);
+        } else {
+          newObject[key] = toSerialize[key];
+        }
+      }
       return newObject;
     }, {});
   }
