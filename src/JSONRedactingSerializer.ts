@@ -38,15 +38,16 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     const contentType: string = contentTypes?.split(';').shift(); // get first
     switch (contentType) {
       case 'application/x-www-form-urlencoded':
-        return eventBody.split('&').reduce((accumulator: any, kvp: string) => {
-          const [key, value] = kvp.split('=');
-          accumulator[key] = decodeURIComponent(value);
-          return accumulator;
-        }, {});
-
+        return eventBody.split('&')
+            .reduce((accumulator: any, kvp: string) => {
+              const [key, value] = kvp.split('=');
+              accumulator[key] = decodeURIComponent(value);
+              return accumulator;
+            }, {});
       case 'application/json':
-      default:
         return JSON.parse(eventBody);
+      default:
+        return undefined;
     }
   }
 
