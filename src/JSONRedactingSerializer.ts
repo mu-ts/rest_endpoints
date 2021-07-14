@@ -33,9 +33,21 @@ export function redacted(exceptions?: string, adjustments?: {[role: string]: (ta
 export class JSONRedactingSerializer implements HTTPSerializer {
   constructor() {}
 
-  public deserializeBody(eventBody: string | undefined): HTTPBody | undefined {
-    if (!eventBody) return undefined;
-    return <HTTPBody>JSON.parse(eventBody);
+  public deserializeBody(contentTypes: string | undefined, eventBody: string | undefined): HTTPBody | undefined {
+    if (!eventBody?.trim()) return undefined;
+    let contentType: string = contentTypes.substring(0, contentTypes.indexOf(';')); // get first
+    switch (contentType) {
+      case 'application/x-www-form-urlencoded':
+        return eventBody.split('&').reduce((accumulator: any, kvp: string) => {
+          const [key, value] = kvp.split('=');
+          accumulator[key] = decodeURIComponent(value);
+          return accumulator;
+        }, {});
+
+      case 'application/json':
+      default:
+        return JSON.parse(eventBody.trim());
+    }
   }
 
   public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string, role?: string): string {

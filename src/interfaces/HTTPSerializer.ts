@@ -7,7 +7,7 @@ export interface HTTPSerializer {
    *
    * @param event
    */
-  deserializeBody(eventBody: string | undefined): HTTPBody | undefined;
+  deserializeBody(contentTypes: string | undefined, eventBody: string | undefined): HTTPBody | undefined;
 
   /**
    * Called to serialize the HTTPBody of a response into a string. Will
