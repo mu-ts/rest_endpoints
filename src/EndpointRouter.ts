@@ -61,9 +61,12 @@ export abstract class EndpointRouter {
     try {
       this.logger.trace(_event, 'handle()', 'Start -->');
 
+      const headers = new StringMap(_event.headers);
+      const contentTypes: string | undefined = headers.get('Content-Type');
+
       const event: EndpointEvent<any> = {
         rawBody: _event.body,
-        body: _event.body ? EndpointRouter.serializer.deserializeBody(_event.body) : undefined,
+        body: _event.body ? EndpointRouter.serializer.deserializeBody(contentTypes, _event.body) : undefined,
         headers: new StringMap(_event.headers),
         multiValueHeaders: _event.multiValueHeaders,
         httpMethod: _event.httpMethod,
