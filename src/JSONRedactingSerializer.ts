@@ -46,7 +46,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
 
       case 'application/json':
       default:
-        return JSON.parse(eventBody.trim());
+        return JSON.parse(eventBody);
     }
   }
 
