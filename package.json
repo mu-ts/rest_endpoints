@@ -71,7 +71,8 @@
       ".ts"
     ],
     "require": [
-      "ts-mocha"
+      "ts-node/register",
+      "source-map-support/register"
     ],
     "sourceMap": true,
     "instrument": true,

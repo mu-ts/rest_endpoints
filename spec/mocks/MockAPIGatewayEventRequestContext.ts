@@ -1,6 +1,7 @@
-import { APIGatewayEventRequestContext, AuthResponseContext } from 'aws-lambda';
+import { APIGatewayEventClientCertificate, APIGatewayEventRequestContext, AuthResponseContext } from 'aws-lambda';
 
 export class MockAPIGatewayEventRequestContext implements APIGatewayEventRequestContext {
+  protocol: string;
   accountId: string;
   apiId: string;
   authorizer: AuthResponseContext | null;
@@ -9,9 +10,24 @@ export class MockAPIGatewayEventRequestContext implements APIGatewayEventRequest
   domainName: string;
   eventType: string;
   extendedRequestId: string;
-  protocol: string;
   httpMethod: string;
-  identity: { accessKey: string | null; accountId: string | null; apiKey: string | null; apiKeyId: string | null; caller: string | null; cognitoAuthenticationProvider: string | null; cognitoAuthenticationType: string | null; cognitoIdentityId: string | null; cognitoIdentityPoolId: string | null; principalOrgId: string | null; sourceIp: string; user: string | null; userAgent: string | null; userArn: string | null };
+  identity: {
+    accessKey: string | null;
+    accountId: string | null;
+    apiKey: string | null;
+    apiKeyId: string | null;
+    caller: string | null;
+    clientCert: APIGatewayEventClientCertificate | null,
+    cognitoAuthenticationProvider: string | null;
+    cognitoAuthenticationType: string | null;
+    cognitoIdentityId: string | null;
+    cognitoIdentityPoolId: string | null;
+    principalOrgId: string | null;
+    sourceIp: string;
+    user: string | null;
+    userAgent: string | null;
+    userArn: string | null;
+  };
   messageDirection: string;
   messageId: string | null;
   path: string;

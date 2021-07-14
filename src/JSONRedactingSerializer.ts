@@ -35,7 +35,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
 
   public deserializeBody(contentTypes: string | undefined, eventBody: string | undefined): HTTPBody | undefined {
     if (!eventBody?.trim()) return undefined;
-    let contentType: string = contentTypes.substring(0, contentTypes.indexOf(';')); // get first
+    const contentType: string = contentTypes.substring(0, contentTypes.indexOf(';')); // get first
     switch (contentType) {
       case 'application/x-www-form-urlencoded':
         return eventBody.split('&').reduce((accumulator: any, kvp: string) => {
