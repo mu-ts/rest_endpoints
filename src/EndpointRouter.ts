@@ -62,7 +62,7 @@ export abstract class EndpointRouter {
       this.logger.trace(_event, 'handle()', 'Start -->');
 
       const headers = new StringMap(_event.headers);
-      const contentTypes: string | undefined = headers.get('Content-Type') || headers.get('content-type');
+      const contentTypes: string | undefined = ['Content-Type', 'Content-type', 'content-type', 'content-Type'].map((type: string) => headers.get(type)).filter(Boolean).shift();
 
       const event: EndpointEvent<any> = {
         rawBody: _event.body,
