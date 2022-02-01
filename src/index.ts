@@ -10,6 +10,7 @@ export * from './decorators/endpoints';
 export * from './model/HTTPAction';
 export * from './model/HTTPBody';
 export * from './model/EndpointEvent';
+export * from './model/StringMap';
 export * from './EndpointRouter';
 export * from './HTTPAPIGatewayProxyResult';
 export * from './JSONRedactingSerializer';
