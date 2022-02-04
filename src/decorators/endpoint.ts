@@ -45,7 +45,7 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         if (validationErrors.size > 0) {
           const errors: string[] = Array.from(validationErrors);
 
-          logger.error({ data: { validationErrors, errors } }, 'endpoint() - failed validation');
+          logger.error({ data: { validationErrors: errors } }, 'endpoint() - failed validation');
 
           return Promise.resolve(
               HTTPAPIGatewayProxyResult.setBody({ message: errors })
