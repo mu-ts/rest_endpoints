@@ -43,12 +43,10 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         });
 
         if (validationErrors.size > 0) {
-          const errors: string[] = Array.from(validationErrors);
-
-          logger.error({ data: { validationErrors, errors } }, 'endpoint() - failed validation');
+          logger.error({ data: { validationErrors } }, 'endpoint() - failed validation');
 
           return Promise.resolve(
-            HTTPAPIGatewayProxyResult.setBody({ message: errors })
+            HTTPAPIGatewayProxyResult.setBody({ message: Array.from(validationErrors) })
               .setStatusCode(400)
               .addHeader('Access-Control-Allow-Origin', '*')
               .addHeader('Access-Control-Allow-Headers', '*')
