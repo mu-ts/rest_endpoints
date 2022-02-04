@@ -43,14 +43,16 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         });
 
         if (validationErrors.size > 0) {
-          logger.error({ data: { validationErrors } }, 'endpoint() - failed validation');
+          const errors: string[] = Array.from(validationErrors);
+
+          logger.error({ data: { validationErrors, errors } }, 'endpoint() - failed validation');
 
           return Promise.resolve(
-            HTTPAPIGatewayProxyResult.setBody({ message: Array.from(validationErrors) })
-              .setStatusCode(400)
-              .addHeader('Access-Control-Allow-Origin', '*')
-              .addHeader('Access-Control-Allow-Headers', '*')
-              .addHeader('X-REQUEST-ID', event.requestContext.requestId)
+              HTTPAPIGatewayProxyResult.setBody({ message: errors })
+                  .setStatusCode(400)
+                  .addHeader('Access-Control-Allow-Origin', '*')
+                  .addHeader('Access-Control-Allow-Headers', '*')
+                  .addHeader('X-REQUEST-ID', event.requestContext.requestId)
           );
         }
       }
