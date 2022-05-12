@@ -79,7 +79,7 @@ export class EndpointRoutes {
    * @param instanceArgs arguments to supply into the constructor of the instance.
    */
   private static getInstance(_constructor: any, _instanceArgs?: any | any[]): any {
-    this.logger.debug({ data: { _constructor, _instanceArgs } }, 'getInstance()', '--> ');
+    this.logger.debug({ data: { _constructor, _instanceArgs: (_instanceArgs) ? Object.keys(_instanceArgs) : undefined } }, 'getInstance()', '--> ');
     let instance = this._instances.get(_constructor['name']);
     if (!instance) {
       this.logger.debug({ data: { namne: _constructor['name'] } }, 'getInstance()', ' -- creating instance ');
