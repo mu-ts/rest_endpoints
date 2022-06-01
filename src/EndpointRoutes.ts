@@ -82,7 +82,7 @@ export class EndpointRoutes {
     this.logger.debug({ data: { _constructor, _instanceArgs: (_instanceArgs) ? Object.keys(_instanceArgs) : undefined } }, 'getInstance()', '--> ');
     let instance = this._instances.get(_constructor['name']);
     if (!instance) {
-      this.logger.debug({ data: { namne: _constructor['name'] } }, 'getInstance()', ' -- creating instance ');
+      this.logger.debug({ data: { name: _constructor['name'] } }, 'getInstance()', ' -- creating instance ');
       if (!_instanceArgs) {
         instance = new _constructor();
       } else {

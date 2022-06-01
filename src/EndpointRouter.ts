@@ -59,15 +59,15 @@ export abstract class EndpointRouter {
   @inOut()
   public static async handle(_event: APIGatewayProxyEvent, context: Context): Promise<HTTPAPIGatewayProxyResult> {
     try {
-      this.logger.trace(_event, 'handle()', 'Start -->');
+      this.logger.trace('handle()', 'Start -->', _event);
 
-      const headers = new StringMap(_event.headers);
-      const contentTypes: string | undefined = ['Content-Type', 'Content-type', 'content-type', 'content-Type'].map((type: string) => headers.get(type)).filter(Boolean).shift();
+      const _headers = new StringMap(_event.headers);
+      const contentTypes: string | undefined = ['Content-Type', 'Content-type', 'content-type', 'content-Type'].map((type: string) => _headers.get(type)).find(Boolean);
 
       const event: EndpointEvent<any> = {
         rawBody: _event.body,
         body: _event.body ? EndpointRouter.serializer.deserializeBody(contentTypes, _event.body) : undefined,
-        headers: new StringMap(_event.headers),
+        headers: _headers,
         multiValueHeaders: _event.multiValueHeaders,
         httpMethod: _event.httpMethod,
         isBase64Encoded: _event.isBase64Encoded,
@@ -80,16 +80,24 @@ export abstract class EndpointRouter {
         resource: _event.resource,
       };
 
-      this.logger.trace(event, 'handle()', 'event');
-      this.logger.trace({ data: EndpointRoutes.getRoutes() }, 'handle()', ' routes');
+      this.logger.trace('handle()', 'event', event);
+      this.logger.trace('handle()', ' routes', { data: EndpointRoutes.getRoutes() });
 
-      this.logger.debug({ resource: event.resource, httpMethod: event.httpMethod }, 'handle()', 'request path');
+      const { httpMethod, path, queryStringParameters, body, requestContext, headers  } = event;
+      this.logger.info('handle()', 'request path', {
+        httpMethod,
+        path,
+        queryStringParameters,
+        body,
+        requestContext,
+        headers
+      });
 
       const routeOptions: Array<EndpointRoute> = EndpointRoutes.getRoutes()
         .filter((route: EndpointRoute) => route.resource === event.resource)
         .filter((route: EndpointRoute) => route.action === event.httpMethod)
         .filter((route: EndpointRoute) => {
-          this.logger.trace(route, 'handle()', 'check condition');
+          this.logger.trace('handle()', 'check condition', route);
           if (route.condition) {
             return route.condition(event.body, event);
           }
@@ -122,7 +130,7 @@ export abstract class EndpointRouter {
           .addHeader('X-REQUEST-ID', event.requestContext.requestId);
       }
 
-      this.logger.debug({ data: response }, 'handle() response from route');
+      this.logger.trace({ data: response }, 'handle()', 'response from route');
 
       const scopes = event.requestContext.authorizer && String(event.requestContext.authorizer.scope);
       const role = event.requestContext.authorizer && String(event.requestContext.authorizer['https://authvia.com/role']);
@@ -130,11 +138,16 @@ export abstract class EndpointRouter {
       response.body =
         typeof response.body === 'string' ? response.body : EndpointRouter.serializer.serializeResponse(response.body, response.type, scopes, role);
 
-      delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
+      // delete response.type; // TODO: is there a better way to handle removing 'type' from the response, doesn't seem to like it
+      const { type, ...returnResponse } = response; // removing 'type' from response being returned
 
-      this.logger.debug({ data: response }, 'handle()', 'response after serializing');
+      try {
+        this.logger.info('handle()', 'response after serializing', { ...returnResponse, ...{ body: JSON.parse(returnResponse.body) } });
+      } catch (error) {
+        this.logger.info('handle()', 'response after serializing', { returnResponse });
+      }
 
-      return response;
+      return returnResponse as HTTPAPIGatewayProxyResult;
     } catch (error) {
       return HTTPAPIGatewayProxyResult.setBody({ message: `Critical failure: ${error.message}` })
         .setStatusCode(500)
