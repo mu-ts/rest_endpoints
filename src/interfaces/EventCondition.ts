@@ -1,5 +1,4 @@
-import { HTTPBody } from '../model/HTTPBody';
-import { EndpointEvent } from '../model/EndpointEvent';
+import { EndpointEvent, HTTPBody } from '../model';
 
 export interface EventCondition {
   (body: HTTPBody | undefined, event: EndpointEvent<any>): boolean;

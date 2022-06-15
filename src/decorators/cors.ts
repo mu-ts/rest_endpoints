@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { HTTPAction } from '../model/HTTPAction';
+import { HTTPAction } from '../model';
 import { HTTPAPIGatewayProxyResult } from '../HTTPAPIGatewayProxyResult';
-import { AllowedOrigin } from '../interfaces/AllowedOrigin';
-import { Logger, LoggerService, LoggerConfig } from '@mu-ts/logger';
+import { AllowedOrigin } from '../interfaces';
+import { Logger, LoggerConfig, LoggerService } from '@mu-ts/logger';
 
 /**
  * Needs to be placed after the @endpoints decorator.

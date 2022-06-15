@@ -1,5 +1,5 @@
 import { EndpointRoutes } from '../EndpointRoutes';
-import { Logger, LoggerService, LoggerConfig } from '@mu-ts/logger';
+import { Logger, LoggerConfig, LoggerService } from '@mu-ts/logger';
 
 /**
  *

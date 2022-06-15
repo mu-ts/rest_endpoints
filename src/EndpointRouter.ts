@@ -21,7 +21,7 @@ LoggerService.registerFilter(new SensitiveNameLoggerFilter());
 LoggerService.registerFilter(new CreditCardLoggerFilter());
 
 /**
- * Singleton that contains all of the routes registered for this
+ * Singleton that contains all the routes registered for this
  * endpoint.
  */
 export abstract class EndpointRouter {
@@ -29,11 +29,9 @@ export abstract class EndpointRouter {
   private static serializer: HTTPSerializer = new JSONRedactingSerializer();
   public static validationHandler: ValidationHandler;
 
-  private constructor() {}
-
   /**
    *
-   * @param headers to set on every request.
+   * @param level
    */
   public static setLogLevel(level: LogLevelString): void {
     this.logger.setLevel(level);
@@ -51,9 +49,8 @@ export abstract class EndpointRouter {
 
   /**
    *
-   * @param event to invoke the endpoint with.
+   * @param _event to invoke the endpoint with.
    * @param context of the invocation.
-   * @param callback to execute when completed.
    */
   @duration()
   @inOut()
@@ -105,8 +102,7 @@ export abstract class EndpointRouter {
         })
         .map((route: EndpointRoute) => {
           const validators = EndpointRoutes.getValidators() || [];
-          const validations = validators.filter(validator => validator.descriptor === route.descriptor);
-          route.validations = validations;
+          route.validations = validators.filter(validator => validator.descriptor === route.descriptor);
           return route;
         })
         .sort((first: EndpointRoute, second: EndpointRoute) => second.priority - first.priority);

@@ -1,4 +1,4 @@
-import { HTTPBody } from './model/HTTPBody';
+import { HTTPBody } from './model';
 import { APIGatewayProxyResult } from 'aws-lambda';
 
 /**
@@ -38,8 +38,9 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
   /**
    *
    * @param body
+   * @param type
    */
-  public static setBody<T>(body: string | HTTPBody, type?: T): HTTPAPIGatewayProxyResult {
+  public static setBody<T>(body: string | HTTPBody, ...type: T[]): HTTPAPIGatewayProxyResult {
     const response: HTTPAPIGatewayProxyResult = new HTTPAPIGatewayProxyResult();
     response.setBody(body, type);
     return response;
@@ -48,8 +49,9 @@ export class HTTPAPIGatewayProxyResult implements APIGatewayProxyResult {
   /**
    *
    * @param body To return to the caller.
+   * @param type
    */
-  public setBody<T>(body: string | HTTPBody, type?: T): HTTPAPIGatewayProxyResult {
+  public setBody<T>(body: string | HTTPBody, ...type: T[]): HTTPAPIGatewayProxyResult {
     this.body = body;
     this.type = type;
     return this;

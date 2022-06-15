@@ -1,8 +1,6 @@
 import 'reflect-metadata';
 import { Logger, LoggerService, LogLevelString } from '@mu-ts/logger';
-import { EventCondition } from './interfaces/EventCondition';
-import { EndpointRoute } from './interfaces/EndpointRoute';
-import { Validation } from './interfaces/Validation';
+import { EndpointRoute, EventCondition, Validation } from './interfaces';
 
 const METADATA_KEY: string = '__mu-ts_endpoints';
 const METADATA_VALIDATE_KEY: string = '__mu-ts_validate';
@@ -13,11 +11,9 @@ export class EndpointRoutes {
   private static _instances: Map<string, any> = new Map();
   private static logger: Logger = LoggerService.named({ name: 'EndpointRoutes', adornments: { '@mu-ts': 'endpoints' } });
 
-  private constructor() {}
-
   /**
    *
-   * @param headers to set on every request.
+   * @param level
    */
   public static setLogLevel(level: LogLevelString): void {
     this.logger.setLevel(level);
@@ -76,7 +72,7 @@ export class EndpointRoutes {
   /**
    *
    * @param _constructor to invoke a new instance of.
-   * @param instanceArgs arguments to supply into the constructor of the instance.
+   * @param _instanceArgs arguments to supply into the constructor of the instance.
    */
   private static getInstance(_constructor: any, _instanceArgs?: any | any[]): any {
     this.logger.debug({ data: { _constructor, _instanceArgs: (_instanceArgs) ? Object.keys(_instanceArgs) : undefined } }, 'getInstance()', '--> ');
@@ -87,7 +83,7 @@ export class EndpointRoutes {
         instance = new _constructor();
       } else {
         /**
-         * Apply is 1 based instead of 0 based, so instert a null at the begining
+         * Apply is 1 based instead of 0 based, so insert a null at the beginning
          * to align values with apply.
          */
         const instanceArgs: any | any[] = [undefined].concat(_instanceArgs);
