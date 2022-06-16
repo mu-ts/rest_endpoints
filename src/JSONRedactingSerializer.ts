@@ -11,18 +11,15 @@ const redactionAdjustments: Map<string, {[role: string]: (target: any) => any}> 
  * when it is being serialized.
  */
 export function redacted(exceptions?: string, adjustments?: {[role: string]: (target: any) => any}) {
-  return function(target: any, propertyToRedact: string) {
+  return (target: any, propertyToRedact: string) => {
     const name = target.constructor.name.toLowerCase();
 
     const redactedKeys = typeRedaction.get(name) || [];
     redactedKeys.push(propertyToRedact);
     typeRedaction.set(name, redactedKeys);
-    if (exceptions) {
-      redactionExceptions.set(propertyToRedact, exceptions);
-    }
-    if (adjustments) {
-      redactionAdjustments.set(propertyToRedact, adjustments);
-    }
+
+    if (exceptions) redactionExceptions.set(propertyToRedact, exceptions);
+    if (adjustments) redactionAdjustments.set(propertyToRedact, adjustments);
   };
 }
 
@@ -51,19 +48,32 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     }
   }
 
-  public serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string, role?: string): string {
+  public serializeResponse<T>(responseBody: HTTPBody, type: T[], scopes?: string, role?: string): string {
     const toSerialize: HTTPBody = Array.isArray(responseBody)
       ? responseBody.map(aObj => this.redact(aObj, type, scopes, role))
       : this.redact(responseBody, type, scopes, role);
     return JSON.stringify(toSerialize);
   }
 
-  private redact<T>(toSerialize: HTTPBody, type: string | T, scopes?: string, role?: string): HTTPBody {
-    if (!type) {
-      return toSerialize;
+  private static getName(type: unknown) {
+    switch (typeof type) {
+      case 'string':
+        return type.toLowerCase();
+      case 'function':
+        return `${(type as any).name.toLowerCase()}`;
+      case 'object':
+      default:
+        return `${(type as any).constructor.name.toLowerCase()}`;
     }
-    const name = typeof type === 'string' ? type : `${(<any>type)['name'].toLowerCase()}`;
-    const redactedKeys: string[] = typeRedaction.get(name);
+  }
+
+  private redact<T>(toSerialize: HTTPBody, type: string | T[], scopes?: string, role?: string): HTTPBody {
+    if (!type) return toSerialize;
+
+    const redactedKeys: string[] = (Array.isArray(type))
+        ? type.map((ty: T) => typeRedaction.get(JSONRedactingSerializer.getName(ty)) as string[]).flat()
+        : typeRedaction.get(JSONRedactingSerializer.getName(type)) as string[];
+
     const scopesArray: string[] = scopes?.split(' ');
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
       const exceptArray: string[] = redactionExceptions.get(key)?.split(' ');

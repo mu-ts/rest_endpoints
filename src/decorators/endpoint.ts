@@ -1,11 +1,9 @@
 import { EndpointRouter } from '../EndpointRouter';
-import { HTTPAction } from '../model/HTTPAction';
-import { Validation } from '../interfaces/Validation';
-import { EndpointEvent } from '../model/EndpointEvent';
-import { EventCondition } from '../interfaces/EventCondition';
+import { EndpointEvent, HTTPAction } from '../model';
+import { EventCondition, Validation } from '../interfaces';
 import { HTTPAPIGatewayProxyResult } from '../HTTPAPIGatewayProxyResult';
 import { EndpointRoutes } from '../EndpointRoutes';
-import { LoggerService, Logger, LoggerConfig } from '@mu-ts/logger';
+import { Logger, LoggerConfig, LoggerService } from '@mu-ts/logger';
 
 /**
  *

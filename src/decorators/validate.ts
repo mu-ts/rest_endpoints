@@ -1,6 +1,6 @@
 import { EventCondition } from '../index';
 import { EndpointRoutes } from '../EndpointRoutes';
-import { LoggerService, Logger, LoggerConfig } from '@mu-ts/logger';
+import { Logger, LoggerConfig, LoggerService } from '@mu-ts/logger';
 
 export function validate(schema: string, condition?: EventCondition): any;
 export function validate(schema: object, condition?: EventCondition): any;

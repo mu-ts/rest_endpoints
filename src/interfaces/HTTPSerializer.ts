@@ -1,4 +1,4 @@
-import { HTTPBody } from '../model/HTTPBody';
+import { HTTPBody } from '../model';
 
 export interface HTTPSerializer {
   /**
@@ -16,5 +16,5 @@ export interface HTTPSerializer {
    *
    * @param response
    */
-  serializeResponse<T>(responseBody: HTTPBody, type: T, scopes?: string | null | undefined, role?: string | null | undefined): string;
+  serializeResponse<T>(responseBody: HTTPBody, type: T[], scopes?: string | null | undefined, role?: string | null | undefined): string;
 }
