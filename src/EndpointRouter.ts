@@ -140,7 +140,7 @@ export abstract class EndpointRouter {
       try {
         this.logger.info('handle()', 'response after serializing', { ...returnResponse, ...{ body: JSON.parse(returnResponse.body) } });
       } catch (error) {
-        this.logger.info('handle()', 'response after serializing', { returnResponse });
+        this.logger.info('handle()', 'response after serializing catch', { returnResponse });
       }
 
       return returnResponse as HTTPAPIGatewayProxyResult;
