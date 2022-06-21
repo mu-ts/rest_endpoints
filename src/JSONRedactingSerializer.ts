@@ -48,7 +48,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     }
   }
 
-  public serializeResponse<T>(responseBody: HTTPBody, type: T[], scopes?: string, role?: string): string {
+  public serializeResponse<T>(responseBody: HTTPBody, type: string | T | T[], scopes?: string, role?: string): string {
     const toSerialize: HTTPBody = Array.isArray(responseBody)
       ? responseBody.map(aObj => this.redact(aObj, type, scopes, role))
       : this.redact(responseBody, type, scopes, role);
@@ -67,18 +67,20 @@ export class JSONRedactingSerializer implements HTTPSerializer {
     }
   }
 
-  private redact<T>(toSerialize: HTTPBody, type: string | T[], scopes?: string, role?: string): HTTPBody {
+  private redact<T>(toSerialize: HTTPBody, type: string | T | T[], scopes?: string, role?: string): HTTPBody {
     if (!type) return toSerialize;
 
     const redactedKeys: string[] = (Array.isArray(type))
-        ? type.map((ty: T) => typeRedaction.get(JSONRedactingSerializer.getName(ty)) as string[]).flat()
-        : typeRedaction.get(JSONRedactingSerializer.getName(type)) as string[];
+        ? this.flatDeep(type, Infinity).map((ty: T) => typeRedaction.get(JSONRedactingSerializer.getName(ty)))
+        : typeRedaction.get(JSONRedactingSerializer.getName(type));
+
+    const finalRedactedKeys: string[] = redactedKeys.flat().filter(Boolean);
 
     const scopesArray: string[] = scopes?.split(' ');
     return Object.keys(toSerialize).reduce((newObject: HTTPBody, key: string) => {
       const exceptArray: string[] = redactionExceptions.get(key)?.split(' ');
       const hasException: boolean = exceptArray?.some(except => scopesArray?.includes(except) || role === except) || false;
-      const shouldInclude: boolean = !redactedKeys?.includes(key) || hasException;
+      const shouldInclude: boolean = !finalRedactedKeys?.includes(key) || hasException;
       if (shouldInclude) {
         if (redactionAdjustments.get(key)?.[role]) {
           newObject[key] = redactionAdjustments.get(key)[role](toSerialize[key]);
@@ -89,4 +91,9 @@ export class JSONRedactingSerializer implements HTTPSerializer {
       return newObject;
     }, {});
   }
+
+  private flatDeep(arr: any, d = 1) {
+    return d > 0 ? arr.reduce((acc: string | any[], val: any) => acc.concat(Array.isArray(val) ? this.flatDeep(val, d - 1) : val), [])
+        : arr.slice();
+  };
 }
