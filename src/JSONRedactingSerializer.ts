@@ -68,7 +68,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
   }
 
   private redact<T>(toSerialize: HTTPBody, type: string | T | T[], scopes?: string, role?: string): HTTPBody {
-    if (!type) return toSerialize;
+    if (!type || typeof toSerialize === "string") return toSerialize;
 
     const redactedKeys: string[] = (Array.isArray(type))
         ? this.flatDeep(type, Infinity).map((ty: T) => typeRedaction.get(JSONRedactingSerializer.getName(ty)))
