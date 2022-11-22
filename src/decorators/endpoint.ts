@@ -29,11 +29,11 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
        * Schema and general validation
        */
       if (validations) {
-        const validationErrors = new Set<string>();
+        const validationErrors = new Set<unknown>();
 
         validations.forEach((validation) => {
           if (!validation.validatorCondition || validation.validatorCondition(event.body, event)) {
-            const errors: string[] | void = EndpointRouter.validationHandler.validate(event.body, validation.schema);
+            const errors: unknown[] | void = EndpointRouter.validationHandler.validate(event.body, validation.schema);
             if (errors) {
               errors.forEach((item) => validationErrors.add(item));
             }
@@ -41,12 +41,12 @@ export function endpoint(action: HTTPAction | string, path?: string, condition?:
         });
 
         if (validationErrors.size > 0) {
-          const errors: string[] = Array.from(validationErrors);
+          const errors: unknown[] = Array.from(validationErrors);
 
           logger.error({ data: { validationErrors: errors } }, 'endpoint() - failed validation');
 
           return Promise.resolve(
-              HTTPAPIGatewayProxyResult.setBody({ message: errors })
+              HTTPAPIGatewayProxyResult.setBody(EndpointRouter.validationHandler.format ? EndpointRouter.validationHandler.format(errors, event) : { message: errors })
                   .setStatusCode(400)
                   .addHeader('Access-Control-Allow-Origin', '*')
                   .addHeader('Access-Control-Allow-Headers', '*')
