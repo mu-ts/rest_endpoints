@@ -68,7 +68,7 @@ export class JSONRedactingSerializer implements HTTPSerializer {
   }
 
   private redact<T>(toSerialize: HTTPBody, type: string | T | T[], scopes?: string, role?: string): HTTPBody {
-    if (!type || typeof toSerialize === "string") return toSerialize;
+    if (!type || typeof toSerialize === 'string') return toSerialize;
 
     const redactedKeys: string[] = (Array.isArray(type))
         ? this.flatDeep(type, Infinity).map((ty: T) => typeRedaction.get(JSONRedactingSerializer.getName(ty)))
@@ -95,5 +95,5 @@ export class JSONRedactingSerializer implements HTTPSerializer {
   private flatDeep(arr: any, d = 1) {
     return d > 0 ? arr.reduce((acc: string | any[], val: any) => acc.concat(Array.isArray(val) ? this.flatDeep(val, d - 1) : val), [])
         : arr.slice();
-  };
+  }
 }
