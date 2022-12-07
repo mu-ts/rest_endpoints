@@ -1,10 +1,8 @@
-/**
- * Expected HTTP Actions for endpoint routing.
- */
-export enum HTTPAction {
-  GET = 'GET',
-  PUT = 'PUT',
-  POST = 'POST',
-  PATCH = 'PATCH',
-  DELETE = 'DELETE',
+export enum HttpAction {
+ GET = 'GET',
+ POST = 'POST',
+ PUT = 'PUT',
+ PATCH = 'PATCH',
+ DELETE = 'DELETE',
+ OPTIONS = 'OPTIONS',
 }

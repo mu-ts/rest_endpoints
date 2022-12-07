@@ -8,13 +8,14 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "lib": ["ES2017"],
-    "target": "ES2017",
-    "module": "commonjs",
-    "rootDir": "./src",
+    "sourceMap": true,
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "rootDir": "src",
     "outDir": "./lib",
     "types": ["node"]
   },
   "exclude": ["node_modules", "*.spec/**/*.spec.ts"],
-  "include": ["src/**/*"]
+  "include": ["src.old/**/*"]
 }
