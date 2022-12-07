@@ -50,7 +50,9 @@ export class Router {
         let path, action;
 
         /**
-         * For payload references,
+         * TODO normalize the event so it can be processed, for both version 1 or 2.
+         * 
+         * For payload references
          * 
          * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
          */
@@ -75,11 +77,14 @@ export class Router {
         if (!route) {
             response.body = { message: `The path or action is not implemented "${path}:${action}".`};
             response.statusCode = 501;
+            response.statusDescription = `The path or action is not implemented "${path}:${action}".`;
             response.headers = this.responseHeaders();
+
         } else {
-            // execute route
-            // todo validation
-            // todo cors.
+            // TODO get body, headers, path parameters, query string and cookies from event.
+            // TODO execute route
+            // TODO validation
+            // TODO cors.
             // TODO serialization use AJV if present, and if output schema is present.
             //      https://ajv.js.org/api.html#ajv-compileserializer-schema-object-data-any-string
 
@@ -87,13 +92,12 @@ export class Router {
              * GetMemories
              *   POST
              * getmemories.post.validation.json --> for validation
-             * getmemories.post.schema.json --> for response
+             * getmemories.post.output.json --> for response
              */
         }
 
-        // TODO should there be a best effort to match the body
-        // fallback on content-type
-        // with a serializer?
+        // TODO should there be a best effort to match the body with a serializer?
+        // TODO fallback on content-type
         const accept: string = 'application/json';
         const serializer: HttpSerializer | undefined = this.serializers[accept];
     
