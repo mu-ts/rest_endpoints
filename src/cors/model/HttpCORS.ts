@@ -37,14 +37,13 @@ export interface HttpCORS {
     requestMethod?: string;
 
     /**
-     * Determines what methods the browser will be permitted to send back. This is going to be
-     * determined by the @cors annotation paired with @endpoint annotations.
+     * Determines what methods the browser will be permitted to send back
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-allow-methods
      */
     allowedMethods?: string[];
 
     /**
-     * What headers will be permitted to be sent by the browser.
+     * What headers will be permitted to be read by the browser.
      * Default: Authorization, Content-Type, Allow
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-allow-headers
      */

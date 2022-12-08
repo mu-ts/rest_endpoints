@@ -1,10 +1,14 @@
-import { Router } from "./guts/Router";
-import { HttpSerializer } from "./model/HttpSerializer";
-import { HttpValidator } from "./model/HttpValidator";
-import { HttpCORS } from "./model/HttpCORS";
+import { Router } from "./endpoints/services/Router";
+import { SerializerService } from "./serializers/service/SerializerService";
+import { Validator } from "./validation/model/Validator";
+import { ValidationService } from "./validation/service/ValidationService";
 
 export class HttpRoutes {
     private static _instance: HttpRoutes | undefined;
+
+    private validationService: ValidationService;
+
+    private serializerService: SerializerService;
 
     private routes: Router;
 
@@ -23,9 +27,11 @@ export class HttpRoutes {
      * @param validator to verify payloads with. 
      * @returns 
      */
-    public validator(validator: string | HttpValidator): HttpRoutes {
-        this.routes.configure({ validation: validator });
-        return this;
+    public validation(validator?: string | Validator<any>): ValidationService {
+        if(validator) {
+            this.validationService = new ValidationService(validator);
+        }
+        return this.validationService;
     }
 
     /**

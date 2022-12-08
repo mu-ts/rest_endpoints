@@ -5,4 +5,5 @@ export enum HttpAction {
  PATCH = 'PATCH',
  DELETE = 'DELETE',
  OPTIONS = 'OPTIONS',
+ ANY = 'ANY',
 }

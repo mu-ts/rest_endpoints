@@ -44,20 +44,21 @@
     "url": "https://github.com/mu-ts/rest_endpoints/issues"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
+    "@types/chai": "^4.3.4",
     "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.0",
-    "chai": "^4.3.6",
+    "@types/node": "^18.11.11",
+    "ajv": "^8.11.2",
+    "chai": "^4.3.7",
     "chai-as-promised": "^7.1.1",
-    "codecov": "^3.8.2",
-    "mocha": "^10.0.0",
+    "codecov": "^3.8.3",
+    "mocha": "^10.1.0",
     "nyc": "^15.1.0",
     "source-map-support": "^0.5.21",
-    "ts-node": "^10.8.1",
+    "ts-node": "^10.9.1",
     "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.9.3"
   },
   "dependencies": {
     "@mu-ts/logger": "^3.1.1"

@@ -1,4 +1,4 @@
-import { HttpSerializer } from "../model/HttpSerializer";
+import { HttpSerializer } from "../serializers/model/HttpSerializer";
 
 export class URLEncodedSerializer implements HttpSerializer {
   

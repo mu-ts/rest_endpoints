@@ -1,4 +1,4 @@
-import { HttpResponse } from "../model/HttpResponse";
+import { HttpResponse } from "../endpoints/model/HttpResponse";
 
 export function response(body?: string, statusCode?: number, headers?: { [key:string]: string }, statusDescription?: string): HttpResponse {
     return {
