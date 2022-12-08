@@ -6,14 +6,14 @@ import { HttpAction } from "../model/HttpAction";
  * @param path definition for this GET action mapping. This would include the path names ie, /pathy/{id}
  * @returns 
  */
-export function put(path: string) {
+export function option(path: string) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
     HttpRoutes.instance().router().register({
       path,
-      action: HttpAction.PUT,
+      action: HttpAction.OPTIONS,
       function: descriptor.value.bind(target)
     });
 

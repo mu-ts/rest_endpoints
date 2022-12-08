@@ -101,8 +101,11 @@ export class Router {
       }
     }
 
+    /**
+     * If there is a response.body then look to serialize it appropriately.
+     */
     if (response.body) {
-      const responseSerializer: HttpSerializer | undefined = this.serializerService.forResponse(response);
+      const responseSerializer: HttpSerializer | undefined = this.serializerService.forResponse(request as any as HttpRequest<object>, response);
       if (responseSerializer?.response) request.body = responseSerializer.response(response.body);
       else Logger.warn('Router.handler() No response serializer found.');
     }

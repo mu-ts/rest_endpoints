@@ -3,8 +3,8 @@ export interface HttpRequest<T> {
     resource: string;
     path: string;
     body?: T;
-    headers?: Map<string, string>;
-    pathParameters?: Map<string, string>;
-    queryString?: Map<string, string>;
+    headers?: { [key:string]: string };
+    pathParameters?: { [key:string]: string };
+    queryString?: { [key:string]: string };
     cookies?: string[];
 }

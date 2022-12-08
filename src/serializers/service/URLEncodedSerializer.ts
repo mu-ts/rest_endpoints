@@ -1,4 +1,4 @@
-import { HttpSerializer } from "../serializers/model/HttpSerializer";
+import { HttpSerializer } from "../model/HttpSerializer";
 
 export class URLEncodedSerializer implements HttpSerializer {
   
@@ -21,11 +21,11 @@ export class URLEncodedSerializer implements HttpSerializer {
    * @param body string or buffers are returned, objects are expected to be flat.
    * @returns 
    */
-  public response?(body: string | Buffer | object): string {
+  public response?(body: Record<string, string>): string {
     if (typeof body === 'string') return body;
     if (Buffer.isBuffer(body)) return JSON.stringify(body.toString('utf8'));
     return Object.keys(body)
-      .map((key:string) => `${key}=${encodeURIComponent(body[key])}`)
+      .map((key:string) => `${key}=${encodeURIComponent(body[key] as string)}`)
       .join('&');
   }
 }
