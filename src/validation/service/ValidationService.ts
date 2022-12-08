@@ -22,7 +22,7 @@ export class ValidationService {
     return this._validator;
   }
 
-  public validate(schema: object, request: HttpRequest<string>): HttpResponse | undefined {
+  public validate(schema: object, request: HttpRequest<object>): HttpResponse | undefined {
     if (this._validator) {
       const errors: any[] | undefined = this._validator.validate(schema, request);
 

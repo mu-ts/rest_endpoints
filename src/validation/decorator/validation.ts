@@ -26,7 +26,7 @@ export function validate(schema: object) {
      */
     descriptor.value = async function () {
 
-      const request: HttpRequest<string> = arguments[0];
+      const request: HttpRequest<object> = arguments[0];
 
       // TODO how to detect all the methods for the same path?
       const validationService: ValidationService | undefined = HttpRoutes.instance().validation();

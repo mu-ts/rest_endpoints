@@ -7,6 +7,7 @@ import { EventNormalizer } from "./EventNormalizer";
 import { Logger } from "../../utils/Logger";
 import { Headers } from "./Headers";
 import { SerializerService } from "../../serializers/service/SerializerService";
+import { HttpSerializer } from "../../serializers/model/HttpSerializer";
 
 export class Router {
   private readonly routes: { [key: string]: HttpRoute };
@@ -73,16 +74,20 @@ export class Router {
       }
     } else {
 
+      /**
+       * Handler should actively do less, and allow decorators to do their
+       * jobs in isolation. Serialization will happen at the macro level to
+       * attempt to provide a more consistent implementation for Lamda code.
+       */
       try {
 
-        // TODO engage serialization so that the Content-Type determines the format of the request body
+        if (request.body) {
+          const requestSerializer: HttpSerializer | undefined = this.serializerService.forRequest(request);
+          if (requestSerializer?.request) request.body = requestSerializer.request(request.body);
+          else Logger.warn('Router.handler() No request serializer found.');
+        }
 
         const handler: HttpEndpointFunction = route.function;
-
-        /**
-         * Handler should actively do less, and allow decorators to do their
-         * jobs in isolation.
-         */
         response = await handler(request, context);
 
       } catch (error) {
@@ -96,7 +101,11 @@ export class Router {
       }
     }
 
-    // TODO engage serialization so that the Accept determines the format of the response body
+    if (response.body) {
+      const responseSerializer: HttpSerializer | undefined = this.serializerService.forResponse(response);
+      if (responseSerializer?.response) request.body = responseSerializer.response(response.body);
+      else Logger.warn('Router.handler() No response serializer found.');
+    }
 
     return response;
   }

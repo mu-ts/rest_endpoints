@@ -11,7 +11,7 @@ export class AJVValidator implements Validator<ErrorObject>{
     this.ajv = new Ajv();
   }
 
-  public validate(schema: object, request: HttpRequest<string>): ErrorObject[] | undefined {
+  public validate(schema: object, request: HttpRequest<object>): ErrorObject[] | undefined {
     const validate: ValidateFunction = this.ajv.compile(schema);
     if (validate(request.body)) return undefined;
 
@@ -22,7 +22,7 @@ export class AJVValidator implements Validator<ErrorObject>{
     return errors;
   }
 
-  public format(errors: ErrorObject[], request: HttpRequest<string>): HttpResponse {
+  public format(errors: ErrorObject[], request: HttpRequest<object>): HttpResponse {
     return { 
       body: {
         path: request.path,

@@ -1,3 +1,5 @@
+import { HttpRequest } from "../../endpoints/model/HttpRequest";
+import { HttpResponse } from "../../endpoints/model/HttpResponse";
 import { HttpSerializer } from "../model/HttpSerializer";
 
 export class SerializerService {
@@ -13,11 +15,19 @@ export class SerializerService {
   }
 
   /**
-   * @param headers to look for mime types within. Make sure that the values are in the order 
-   *        of preference. First one being highest priority, all others lower. Each header will
-   *        be parsed according to supported HTTP spec on content-type and accept headers.
+   * @param request
    */
-  public find(...headers: string[]): HttpSerializer {
+  public forRequest(request: HttpRequest): HttpSerializer {
+    const { headers, body } = request;
+    // Content type and accept headers can have a list of options.
+
+  }
+
+  /**
+   * @param response
+   */
+  public forResponse(response: HttpResponse): HttpSerializer {
+    const { headers, body } = response;
     // Content type and accept headers can have a list of options.
 
   }
