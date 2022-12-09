@@ -15,8 +15,10 @@ export function cors(options?: Partial<HttpCORS>) {
      * headers added, or updated, with the cors configuration
      * provided or established within defaults.
      */
+    const targetMethod = descriptor.value;
+    
     descriptor.value = async function () {
-      const response: HttpResponse = await descriptor.value.apply(this, arguments);
+      const response: HttpResponse = await targetMethod.apply(this, arguments);
 
       // TODO how to detect all the methods for the same path?
 
@@ -27,6 +29,8 @@ export function cors(options?: Partial<HttpCORS>) {
       headers = CORS.apply(headers, options);
 
       response.headers = headers;
+
+      return response;
     };
 
     return descriptor;

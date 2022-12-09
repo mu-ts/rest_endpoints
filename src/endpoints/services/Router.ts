@@ -8,6 +8,7 @@ import { Logger } from "../../utils/Logger";
 import { Headers } from "./Headers";
 import { SerializerService } from "../../serializers/service/SerializerService";
 import { HttpSerializer } from "../../serializers/model/HttpSerializer";
+import { ValidationService } from "../../validation/service/ValidationService";
 
 export class Router {
   private readonly routes: { [key: string]: HttpRoute };
@@ -18,6 +19,7 @@ export class Router {
    */
   constructor(
     private readonly serializerService: SerializerService,
+    private readonly validationService?: ValidationService,
     private readonly eventNormalizer: EventNormalizer = new EventNormalizer(),
   ) {
     this.routes = {};
@@ -43,13 +45,13 @@ export class Router {
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
     Logger.debug('Router.handler() event recieved.', { event });
 
-    const request: HttpRequest<string> = this.eventNormalizer.normalize(event);
+    let request: HttpRequest<string | object> = this.eventNormalizer.normalize(event);
 
     Logger.debug('Router.handler() normalized request.', { request });
 
     const { path, action } = request;
 
-    let route: HttpRoute | undefined = this.routes[`${path}:${action}`];
+    let route: HttpRoute | undefined = this.routes[`${path}:${action}`]
 
     Logger.debug('Router.handler() Direct check for route found a result?', route !== undefined);
 
@@ -63,7 +65,8 @@ export class Router {
      * If no route is found, then return a 501.
      */
 
-    let response: HttpResponse;
+    let response: HttpResponse | undefined;
+
     if (!route) {
       Logger.warn('Router.handler() No route was found.');
       response = {
@@ -73,7 +76,6 @@ export class Router {
         headers: Headers.get(),
       }
     } else {
-
       /**
        * Handler should actively do less, and allow decorators to do their
        * jobs in isolation. Serialization will happen at the macro level to
@@ -82,13 +84,19 @@ export class Router {
       try {
 
         if (request.body) {
-          const requestSerializer: HttpSerializer | undefined = this.serializerService.forRequest(request);
-          if (requestSerializer?.request) request.body = requestSerializer.request(request.body);
+          const requestSerializer: HttpSerializer | undefined = this.serializerService.forRequest(request as HttpRequest<string>);
+          /**
+           * This is the point where the body converts from a string to
+           * an object, if a serializer decides for it to be the case.
+           */
+          if (requestSerializer?.request) request.body = requestSerializer.request(request.body as string, route.deserialize);
           else Logger.warn('Router.handler() No request serializer found.');
         }
 
+        if (route.validation && this.validationService) response = this.validationService.validate(request as HttpRequest<object>, route.validation);
+
         const handler: HttpEndpointFunction = route.function;
-        response = await handler(request, context);
+        if (!response) response = await handler(request, context);
 
       } catch (error) {
         Logger.error('Router.handler() HttpEndpointFunction implementation threw an exception.', error);
@@ -106,7 +114,7 @@ export class Router {
      */
     if (response.body) {
       const responseSerializer: HttpSerializer | undefined = this.serializerService.forResponse(request as any as HttpRequest<object>, response);
-      if (responseSerializer?.response) request.body = responseSerializer.response(response.body);
+      if (responseSerializer?.response) request.body = responseSerializer.response(response.body, route.serialize);
       else Logger.warn('Router.handler() No response serializer found.');
     }
 

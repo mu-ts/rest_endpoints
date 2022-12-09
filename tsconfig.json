@@ -1,22 +1,27 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
+    "module": "CommonJS",
+    "target": "ES2022",
     "moduleResolution": "Node",
     "outDir": "lib",
-    "esModuleInterop": true,
+    // "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": false,
-    "strict": true,
-    "noImplicitAny": true,
-    "useUnknownInCatchVariables": false,
-    "inlineSourceMap": true
+    // "isolatedModules": false,
+    // "strict": true,
+    // "noImplicitAny": true,
+    // "useUnknownInCatchVariables": false,
+    // "inlineSourceMap": true
+
+    "baseUrl": "src",
+    "paths": {
+      "@": [ "./" ],
+    }
   },
   "ts-node": {
       "esm": true
   },
-  "lib": ["esnext"],
+  // "lib": ["esnext"],
   "exclude": ["node_modules", "*.spec/**/*.spec.ts"],
   "include": ["src/**/*"]
 }

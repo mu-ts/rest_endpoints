@@ -1,4 +1,4 @@
-import { HttpRoutes } from "../../HttpRoutes";
+import { HttpHandler } from "../../HttpHandler";
 import { HttpAction } from "../model/HttpAction";
 
 /**
@@ -11,7 +11,7 @@ export function patch(path: string) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    HttpRoutes.instance().router().register({
+     HttpHandler.instance().router().register({
       path,
       action: HttpAction.PATCH,
       function: descriptor.value.bind(target)

@@ -1,9 +1,8 @@
 import { HttpRequest } from "../../endpoints/model/HttpRequest";
 import { HttpResponse } from "../../endpoints/model/HttpResponse";
 import { HttpSerializer } from "../model/HttpSerializer";
-import { JSONSerializer } from "./JSONSerializer";
-import { URLEncodedSerializer } from "./URLEncodedSerializer";
-
+import { JSONSerializer } from "./serializers/JSONSerializer";
+import { URLEncodedSerializer } from "./serializers/URLEncodedSerializer";
 export class SerializerService {
 
   private readonly serializers: { [key:string]: HttpSerializer };

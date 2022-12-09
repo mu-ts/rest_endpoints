@@ -11,26 +11,24 @@ import { AJVValidator } from "./AJVValidator";
  */
 export class ValidationService {
 
-  private _validator: Validator<any>;
+  private validator: Validator<any>;
 
   constructor(provider: string | Validator<any>) {
-    if (provider === 'ajv') this._validator = new AJVValidator();
-    else this._validator = provider as Validator<any>;
+    if (provider === 'ajv') this.validator = new AJVValidator();
+    else this.validator = provider as Validator<any>;
   }
 
-  public validator(): Validator<any> {
-    return this._validator;
-  }
-
-  public validate(schema: object, request: HttpRequest<object>): HttpResponse | undefined {
-    if (this._validator) {
-      const errors: any[] | undefined = this._validator.validate(schema, request);
+  public validate(request: HttpRequest<object>, schema: object): HttpResponse | undefined {
+    if (this.validator) {
+      const errors: any[] | undefined = this.validator.validate(request, schema);
+      
+      console.log("errors", errors);
 
       Logger.debug('ValidationService.validate() results of validation.', { errors });
 
       if (errors) {
 
-        if (this._validator.format) return this._validator.format(errors, request);
+        if (this.validator.format) return this.validator.format(errors, request);
 
         return {
           body: { errors },

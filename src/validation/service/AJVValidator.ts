@@ -11,8 +11,9 @@ export class AJVValidator implements Validator<ErrorObject>{
     this.ajv = new Ajv();
   }
 
-  public validate(schema: object, request: HttpRequest<object>): ErrorObject[] | undefined {
+  public validate(request: HttpRequest<object>, schema: object): ErrorObject[] | undefined {
     const validate: ValidateFunction = this.ajv.compile(schema);
+
     if (validate(request.body)) return undefined;
 
     const { errors } = validate;

@@ -9,4 +9,7 @@ export interface HttpRoute {
     action: HttpAction;
     path: string;
     function: HttpEndpointFunction;
+    serialize?: object;
+    deserialize?: object;
+    validation?: object;
 }

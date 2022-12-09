@@ -1,4 +1,4 @@
-import { HttpSerializer } from "../model/HttpSerializer";
+import { HttpSerializer } from "../../model/HttpSerializer";
 
 export class URLEncodedSerializer implements HttpSerializer {
   
@@ -7,7 +7,7 @@ export class URLEncodedSerializer implements HttpSerializer {
    * @param body in the querystring format, converted to an object.
    * @returns 
    */
-  public request?(body: string): string {
+  public request?(body: string): object {
     return body.split('&')
       .reduce((accumulator: any, kvp: string) => {
         const [key, value] = kvp.split('=');
