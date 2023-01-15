@@ -1,4 +1,3 @@
-import { stringify } from "querystring";
 import { HttpRequest } from "../model/HttpRequest";
 
 /**
@@ -17,8 +16,8 @@ export class EventNormalizer {
 
   public normalize(event: any): HttpRequest<string> {
     if (event.version === "2.0") {
-      const { requestContext, routeKey, rawPath, body, headers, queryStringParameters, cookies, pathParameters } = event;
-      const { http }  = requestContext;
+      const { requestContext, routeKey, rawPath, body, headers, queryStringParameters, cookies, pathParameters, } = event;
+      const { http, authorizer }  = requestContext;
       const [ignore, resource] = routeKey.split(' ');
       return {
         action: http.method,
@@ -29,9 +28,12 @@ export class EventNormalizer {
         cookies,
         pathParameters,
         queryString: queryStringParameters,
+        requestContext,
+        authorizer,
       }
     } else {
-      const {resource, path, httpMethod, headers, queryStringParameters, pathParameters, body, } = event;
+      const { resource, path, httpMethod, headers, queryStringParameters, pathParameters, body, requestContext } = event;
+      const { authorizer }  = requestContext;
       return {
         action: httpMethod,
         resource,
@@ -40,6 +42,8 @@ export class EventNormalizer {
         headers,
         pathParameters,
         queryString: queryStringParameters,
+        requestContext,
+        authorizer,
       }
     }
   }

@@ -7,4 +7,6 @@ export interface HttpRequest<T> {
     pathParameters?: { [key:string]: string };
     queryString?: { [key:string]: string };
     cookies?: string[];
+    requestContext: { [key:string]: any, authorizer?: { [key:string]: string } };
+    authorizer?: { [key:string]: string };
 }
