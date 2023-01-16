@@ -16,6 +16,8 @@ export class SerializerService {
 
   public register(mimeType: string, serializer: HttpSerializer) {
     this.serializers[mimeType] = serializer;
+    if(serializer.request) serializer.request.bind(serializer);
+    if(serializer.response) serializer.response.bind(serializer);
   }
 
   /**

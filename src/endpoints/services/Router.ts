@@ -20,7 +20,6 @@ export class Router {
   constructor(
     private readonly serializerService: SerializerService,
     private readonly validationService?: ValidationService,
-    private readonly eventNormalizer: EventNormalizer = new EventNormalizer(),
   ) {
     this.routes = {};
   }
@@ -31,8 +30,10 @@ export class Router {
    * @returns 
    */
   public register(route: HttpRoute): Router {
+    Logger.debug('Router.register() register route', { route });
     const path: string = `${route.path}:${route.action}`;
     this.routes[path] = route;
+    Logger.debug('Router.register() total routes', Object.keys(this.routes));
     return this;
   }
 
@@ -43,9 +44,10 @@ export class Router {
    * @returns 
    */
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
+    Logger.trace('Router.handler() available events.', Object.keys(this.routes));
     Logger.debug('Router.handler() event recieved.', { event });
 
-    let request: HttpRequest<string | object> = this.eventNormalizer.normalize(event);
+    let request: HttpRequest<string | object> = EventNormalizer.normalize(event);
 
     Logger.debug('Router.handler() normalized request.', { request });
 

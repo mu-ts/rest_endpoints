@@ -14,7 +14,7 @@ export class EventNormalizer {
   constructor(){
   }
 
-  public normalize(event: any): HttpRequest<string> {
+  public static normalize(event: any): HttpRequest<string> {
     if (event.version === "2.0") {
       const { requestContext, routeKey, rawPath, body, headers, queryStringParameters, cookies, pathParameters, } = event;
       const { http, authorizer }  = requestContext;
