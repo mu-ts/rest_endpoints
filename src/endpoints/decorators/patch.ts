@@ -11,10 +11,11 @@ export function patch(path: string) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-     HttpHandler.instance().router().register({
+    const instance: any = new target.constructor();
+    HttpHandler.instance().router().register({
       path,
       action: HttpAction.PATCH,
-      function: descriptor.value.bind(target)
+      function: () => descriptor.value.apply(instance, arguments)
     });
 
     return descriptor;

@@ -13,15 +13,16 @@ export function post(path: string, validation?: object, deserialize?: object, se
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-     HttpHandler.instance().router().register({
-      function: descriptor.value.bind(target),
+    const instance: any = new target.constructor();
+    HttpHandler.instance().router().register({
+      function: () => descriptor.value.apply(instance, arguments),
       action: HttpAction.POST,
       path,
       validation,
       deserialize,
       serialize
     });
-  
+
     return descriptor;
   };
 }

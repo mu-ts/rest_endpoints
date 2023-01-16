@@ -45,15 +45,15 @@ export class Router {
    */
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
     Logger.trace('Router.handler() available events.', Object.keys(this.routes));
-    Logger.debug('Router.handler() event recieved.', { event });
+    Logger.debug('Router.handler() event recieved.', { event: JSON.stringify(event, undefined, 2) });
 
     let request: HttpRequest<string | object> = EventNormalizer.normalize(event);
 
-    Logger.debug('Router.handler() normalized request.', { request });
+    Logger.debug('Router.handler() normalized request.', { request: JSON.stringify(request, undefined, 2) });
 
     const { path, action } = request;
 
-    let route: HttpRoute | undefined = this.routes[`${path}:${action}`]
+    let route: HttpRoute | undefined = this.routes?.[`${path}:${action}`]
 
     Logger.debug('Router.handler() Direct check for route found a result?', route !== undefined);
 
@@ -61,7 +61,7 @@ export class Router {
      * If no route was found for the specific action, look under 'ANY' for the 
      * same path.
      */
-    if (!route) route = this.routes[`${path}:ANY`]
+    if (!route) route = this.routes?.[`${path}:ANY`]
 
     /**
      * If no route is found, then return a 501.
@@ -84,29 +84,47 @@ export class Router {
        * attempt to provide a more consistent implementation for Lamda code.
        */
       try {
-
         if (request.body) {
           const requestSerializer: HttpSerializer | undefined = this.serializerService.forRequest(request as HttpRequest<string>);
+          Logger.debug('Router.handler() Serializer for request.', { requestSerializer });
           /**
            * This is the point where the body converts from a string to
            * an object, if a serializer decides for it to be the case.
            */
-          if (requestSerializer?.request) request.body = requestSerializer.request(request.body as string, route.deserialize);
-          else Logger.warn('Router.handler() No request serializer found.');
+          if (requestSerializer?.request) {
+            request.body = requestSerializer.request(request.body as string, route.deserialize);
+            Logger.warn('Router.handler() Body deserialized.', request.body);
+          } else Logger.warn('Router.handler() No request serializer found.');
         }
 
         if (route.validation && this.validationService) response = this.validationService.validate(request as HttpRequest<object>, route.validation);
 
-        const handler: HttpEndpointFunction = route.function;
-        if (!response) response = await handler(request, context);
+        Logger.debug('Router.handler() Response after validation.', {response});
+
+        if (!response) {
+          Logger.debug('Router.handler() Executing function.');
+          const handler: HttpEndpointFunction = route.function;
+          response = await handler(request, context);
+          
+          Logger.debug('Router.handler() Response after execution.', { response });
+        }
 
       } catch (error) {
         Logger.error('Router.handler() HttpEndpointFunction implementation threw an exception.', error);
-        response = {
-          body: { message: 'Unhandled error encountered.' },
-          statusCode: 500,
-          statusDescription: 'Unhandled error encountered.',
-          headers: Headers.get(),
+        if(error.message.includes('schema is invalid')) {
+          response = {
+            body: { message: 'Validation schema for this route is invalid. Check your schema using a JSON schema validator.' },
+            statusCode: 500,
+            statusDescription: 'Invalid Validation Schema',
+            headers: Headers.get(),
+          }
+        } else {
+          response = {
+            body: { message: 'Unhandled error encountered.' },
+            statusCode: 500,
+            statusDescription: 'Unhandled error encountered.',
+            headers: Headers.get(),
+          }
         }
       }
     }

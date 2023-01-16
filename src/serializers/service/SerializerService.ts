@@ -1,3 +1,4 @@
+import { Logger } from "../../utils/Logger";
 import { HttpRequest } from "../../endpoints/model/HttpRequest";
 import { HttpResponse } from "../../endpoints/model/HttpResponse";
 import { HttpSerializer } from "../model/HttpSerializer";
@@ -12,12 +13,12 @@ export class SerializerService {
       'application/json': new JSONSerializer(),
       'application/x-www-form-urlencoded': new URLEncodedSerializer(),
     };
+    Logger.debug('SerializerService.init()', Object.keys(this.serializers));
   }
 
   public register(mimeType: string, serializer: HttpSerializer) {
     this.serializers[mimeType] = serializer;
-    if(serializer.request) serializer.request.bind(serializer);
-    if(serializer.response) serializer.response.bind(serializer);
+    Logger.debug('SerializerService.register()', { mimeType, serializers: Object.keys(this.serializers) });
   }
 
   /**
@@ -25,7 +26,9 @@ export class SerializerService {
    */
   public forRequest(request: HttpRequest<string>): HttpSerializer | undefined {
     const contentType: string = request.headers?.['Content-Type'] || request.headers?.['content-type'] || '';
-    return this.findSerializer(...this.toArray(contentType))
+    Logger.debug('SerializerService.forRequest()', { contentType, serializers: Object.keys(this.findSerializer) });
+    const serializer: HttpSerializer | undefined = this.findSerializer(...this.toArray(contentType))
+    return serializer;
   }
 
   /**
@@ -37,11 +40,14 @@ export class SerializerService {
   public forResponse(request: HttpRequest<object>, response: HttpResponse): HttpSerializer | undefined {
     const accept: string = request.headers?.['Accept'] || request.headers?.['accept'] || '';
     const contentType: string = response.headers?.['Content-Type'] || response.headers?.['content-type'] || '';
-    return this.findSerializer(...this.toArray(accept), ...this.toArray(contentType))
+    Logger.debug('SerializerService.forResponse()', { contentType });
+    const serializer: HttpSerializer | undefined = this.findSerializer(...this.toArray(accept), ...this.toArray(contentType))
+    return serializer;
   }
 
-  private findSerializer(...mimeTypes: string[]) {
-    
+  private findSerializer(...mimeTypes: string[]): HttpSerializer | undefined {
+    Logger.debug('SerializerService.findSerializer()', { mimeTypes });
+
     /**
      * application/json is an always default, since this is all running Node/JS
      */
@@ -51,7 +57,11 @@ export class SerializerService {
       .filter(this.badValueFilter)
       .find((mimeType:string) => supportedMimeTypes.includes(mimeType));
 
+    Logger.debug('SerializerService.findSerializer()', { mimeType, serializers: Object.keys(this.serializers) });
+
     if (!mimeType) return undefined;
+
+    return this.serializers[mimeType];
   }
 
   private toArray(headerValue:string):string[] {
