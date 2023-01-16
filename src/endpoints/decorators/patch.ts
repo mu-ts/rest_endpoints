@@ -14,8 +14,9 @@ export function patch(path: string) {
     const instance: any = new target.constructor();
     HttpHandler.instance().router().register({
       path,
+      instance,
       action: HttpAction.PATCH,
-      function: () => descriptor.value.apply(instance, arguments)
+      function: descriptor.value
     });
 
     return descriptor;

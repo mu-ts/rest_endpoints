@@ -14,8 +14,9 @@ export function put(path: string) {
     const instance: any = new target.constructor();
     HttpHandler.instance().router().register({
       path,
+      instance,
       action: HttpAction.PUT,
-      function: () => descriptor.value.apply(instance, arguments)
+      function: descriptor.value,
     });
 
     return descriptor;

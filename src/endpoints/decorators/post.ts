@@ -17,8 +17,9 @@ export function post(path: string, validation?: object, deserialize?: object, se
      */
     const instance: any = new target.constructor();
     HttpHandler.instance().router().register({
-      function: async (event: HttpRequest<any>, context?: LambdaContext) => descriptor.value.apply(instance, event, context),
+      function: descriptor.value,
       action: HttpAction.POST,
+      instance,
       path,
       validation,
       deserialize,

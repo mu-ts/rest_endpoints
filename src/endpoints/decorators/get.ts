@@ -14,8 +14,9 @@ export function get(path: string) {
     const instance: any = new target.constructor();
     HttpHandler.instance().router().register({
       path,
+      instance,
       action: HttpAction.GET,
-      function: () => descriptor.value.apply(instance, arguments)
+      function: descriptor.value,
     });
 
 

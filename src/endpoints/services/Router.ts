@@ -99,14 +99,13 @@ export class Router {
 
         if (route.validation && this.validationService) {
           response = this.validationService.validate(request as HttpRequest<object>, route.validation);
+          Logger.debug('Router.handler() Request after validation.', response);
         }
 
-        Logger.debug('Router.handler() Response after validation.', { request });
-
         if (!response) {
-          Logger.debug('Router.handler() Executing function.');
+          Logger.debug('Router.handler() Executing function.', { requst: JSON.stringify(request), function: JSON.stringify(route.function) });
 
-          response = await route.function(request, context);
+          response = await route.function.apply(route.instance, [request, context]);
           
           Logger.debug('Router.handler() Response after execution.', { response });
         }
