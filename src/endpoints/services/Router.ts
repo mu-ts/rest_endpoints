@@ -137,6 +137,8 @@ export class Router {
       if (responseSerializer?.response) request.body = responseSerializer.response(response.body, route.serialize);
       else Logger.warn('Router.handler() No response serializer found.');
     }
+    
+    Logger.debug('Router.handler() Repsonse being returned.', JSON.stringify(response));
 
     return response;
   }
