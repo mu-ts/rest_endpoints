@@ -97,14 +97,16 @@ export class Router {
           } else Logger.warn('Router.handler() No request serializer found.');
         }
 
-        if (route.validation && this.validationService) response = this.validationService.validate(request as HttpRequest<object>, route.validation);
+        if (route.validation && this.validationService) {
+          response = this.validationService.validate(request as HttpRequest<object>, route.validation);
+        }
 
-        Logger.debug('Router.handler() Response after validation.', {response});
+        Logger.debug('Router.handler() Response after validation.', { request });
 
         if (!response) {
           Logger.debug('Router.handler() Executing function.');
-          const handler: HttpEndpointFunction = route.function;
-          response = await handler(request, context);
+
+          response = await route.function(request, context);
           
           Logger.debug('Router.handler() Response after execution.', { response });
         }

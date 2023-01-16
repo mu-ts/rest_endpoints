@@ -1,3 +1,5 @@
+import { HttpRequest } from "endpoints/model/HttpRequest";
+import { LambdaContext } from "endpoints/model/LambdaContext";
 import { HttpHandler } from "../../HttpHandler";
 import { HttpAction } from "../model/HttpAction";
 
@@ -15,7 +17,7 @@ export function post(path: string, validation?: object, deserialize?: object, se
      */
     const instance: any = new target.constructor();
     HttpHandler.instance().router().register({
-      function: () => descriptor.value.apply(instance, arguments),
+      function: async (event: HttpRequest<any>, context?: LambdaContext) => descriptor.value.apply(instance, event, context),
       action: HttpAction.POST,
       path,
       validation,
