@@ -66,7 +66,6 @@ export class HttpHandler {
   }
 
   public router() {
-    console.log("router()", this.validationService)
     if(!this.serializerService) this.serializerService = new SerializerService();
     if(!this.validationService) this.validationService = new ValidationService('ajv');
     if(!this.routes) this.routes = new Router(this.serializerService, this.validationService);

@@ -93,7 +93,7 @@ export class Router {
            */
           if (requestSerializer?.request) {
             request.body = requestSerializer.request(request.body as string, route.deserialize);
-            Logger.warn('Router.handler() Body deserialized.', request.body);
+            Logger.debug('Router.handler() Request body deserialized.', request.body);
           } else Logger.warn('Router.handler() No request serializer found.');
         }
 
@@ -106,6 +106,7 @@ export class Router {
           Logger.debug('Router.handler() Executing function.', { requst: JSON.stringify(request), function: JSON.stringify(route.function) });
 
           response = await route.function.apply(route.instance, [request, context]);
+          response.headers = { ...Headers.get(), ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
           
           Logger.debug('Router.handler() Response after execution.', { response });
         }
@@ -135,10 +136,13 @@ export class Router {
      */
     if (response.body) {
       const responseSerializer: HttpSerializer | undefined = this.serializerService.forResponse(request as any as HttpRequest<object>, response);
-      if (responseSerializer?.response) request.body = responseSerializer.response(response.body, route.serialize);
+      if (responseSerializer?.response) {
+        response.body = responseSerializer.response(response.body, route.serialize);
+        Logger.debug('Router.handler() Response body serialized.', response.body);
+      }
       else Logger.warn('Router.handler() No response serializer found.');
     }
-    
+
     Logger.debug('Router.handler() Repsonse being returned.', JSON.stringify(response));
 
     return response;
