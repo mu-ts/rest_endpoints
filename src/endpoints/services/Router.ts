@@ -51,9 +51,9 @@ export class Router {
 
     Logger.debug('Router.handler() normalized request.', { request: JSON.stringify(request, undefined, 2) });
 
-    const { path, action } = request;
+    const { resource, action } = request;
 
-    let route: HttpRoute | undefined = this.routes?.[`${path}:${action}`]
+    let route: HttpRoute | undefined = this.routes?.[`${resource}:${action}`]
 
     Logger.debug('Router.handler() Direct check for route found a result?', route !== undefined);
 
@@ -61,7 +61,7 @@ export class Router {
      * If no route was found for the specific action, look under 'ANY' for the 
      * same path.
      */
-    if (!route) route = this.routes?.[`${path}:ANY`]
+    if (!route) route = this.routes?.[`${resource}:ANY`]
 
     /**
      * If no route is found, then return a 501.
@@ -72,9 +72,9 @@ export class Router {
     if (!route) {
       Logger.warn('Router.handler() No route was found.');
       response = {
-        body: { message: `The path or action is not implemented "${path}:${action}".`, awsRequestId: context.awsRequestId },
+        body: { message: `The path or action is not implemented "${resource}:${action}".`, awsRequestId: context.awsRequestId },
         statusCode: 501,
-        statusDescription: `The path or action is not implemented "${path}:${action}".`,
+        statusDescription: `The path or action is not implemented "${resource}:${action}".`,
         headers: Headers.get(),
       }
     } else {
