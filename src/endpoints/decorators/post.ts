@@ -1,5 +1,3 @@
-import { HttpRequest } from "endpoints/model/HttpRequest";
-import { LambdaContext } from "endpoints/model/LambdaContext";
 import { HttpHandler } from "../../HttpHandler";
 import { HttpAction } from "../model/HttpAction";
 
