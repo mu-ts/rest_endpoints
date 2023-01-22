@@ -7,7 +7,7 @@ import { HttpAction } from "../model/HttpAction";
  *        for the path, it will be invoked instead of this 'generic' mapping.
  * @returns 
  */
-export function any(path: string) {
+export function any(path: string, validation?: object, deserialize?: object, serialize?: object) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     /**
      * De-serialize the request body into an object for the validators to use.
@@ -18,6 +18,9 @@ export function any(path: string) {
       instance,
       action: HttpAction.ANY,
       function: descriptor.value,
+      validation,
+      deserialize,
+      serialize
     });
 
     return descriptor;
