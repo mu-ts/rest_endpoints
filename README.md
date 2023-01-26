@@ -100,11 +100,11 @@ import { HttpHandler, LambdaContext, Router } from '@mu-ts/endpoints';
 /*
  * A class per endpoint can help keep your code easier to test and manage.
  */
-export * from './memories/CreateMemory';
-export * from './memories/GetMemory';
-export * from './memories/UpdateMemory';
-export * from './memories/DeleteMemory';
-export * from './memories/ListMemories';
+export * from './memories/CreateUser';  // @post
+export * from './memories/GetUser';     // @get
+export * from './memories/UpdateUser';  // @patch
+export * from './memories/DeleteUser';  // @_delete
+export * from './memories/ListUsers';   // @get
 
 /**
  * Creating a router instance. Execute the handle event on the router
@@ -119,6 +119,10 @@ endpoint implementations
 ```
 class CreateUser {
 
+  /**
+   * If userPersistence is provided (for unit testing) then a new instance is not
+   * created. 
+   */
   constructor(private userPersistence: UserPersistence = new UserPersistence()){}
 
   @post('/v1/users', {
@@ -137,7 +141,7 @@ class CreateUser {
   }
 }
 
-export const createMemory: CreateMemory = new CreateMemory();
+export const createUser: CreateUser = new CreateUser();
 ```
 
 # Common Problems
