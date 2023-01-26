@@ -1,240 +1,82 @@
-# Proposal
+# Objective
 
-Participate with a common 'router' that will pickup events from any source, within the same function.
-Hooks to run before or after execution.
+Create a lightweight solution for routing endpoing requests recieved by a lambda function to different handlers. Expected to work for AWS http/rest endpoints and own all of the normal middleware that might exist, like facilitating validation, serialization and cors.
 
-Constructor and unit testing logic is not great right now.
 
-? `@mu-ts/ioc` ?
-Some sort of IoC to add objects into instances created by the Router.
+# Start
 
-```
-@provided(type: T) 
-
-@inject(type: T)
+Your handler for lambda needs to create and map the handling function to the router.
 
 ```
-
-`@mu-ts/router`
-Router defaults values.
-Lazy loading, don't instantiate instances until they are used.
-
-```
-Router.defaults.ignoreIf(Function)
-Router.defaults.beforeEach('clearTokens', Function);
-Router.defaults.afterEach('clearTokens', Function);
-Router.defaults.headers({})
-
-Router.defaults.onError(ErrorHandler) // Optional code to execute if an error is encountered. Do we need to do this per event type?
-
-export const handler = (event:any) => Router.handle(event);
-```
-
-Function decorators to change the response appropriately.
-
-```
-@cors(logic?:CORSFunction) // Adds cors headers, but gets a function that can be executed to determine the proper values.
-@secureHeaders({
-  'Server': 'Super awesome',
-  'X-Powered-By': 'Super awesome',
-  'Cache-Control': 'max-age=86400',
-  'Content-Type': 'application/json',
-  'Set-Cookie': 'Secure',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
-  'X-Content-Type-Options': 'nosniff',
-}) // To add headers that add headers to lock down the endpoint.
-```
-
-Simpler validation, with access to complex schema definitions via 
-
-```
-interface SchemaBased {
-  library?: 'ajv', // If not set as router default.
-  schema: object
-}
-
-@endpoints(path:'/myapp') // --> Router.register('type', {options}, constructor)
-class MyEndpoints {
-  @endpoint({
-    action: HttpAction.POST,
-    path: '/users',
-    onlyIf: OnlyIf(event) => {} // Only executes this endpoint mapping if the function returns true, including validation.
-    validation: User
-    -- or --
-    validation: {
-      schema: require('./x.json')
-    },
-  })
-  public async create(event: APIGatewayEvent): Promise<APIGatewayResponse> {
-
-  }
-}
-```
-Attribute decorators for validation and serialization.
-
-```
-class User {
-  @generated(generator?:IDGenerator)
-  id: string;
-
-  @required(message?:'To show on failure')
-  name: string;
-
-  @required(message?:'To show on failure')
-  age: number;
-
-  @redact(unless?:RedactFunction)
-  @required(message?:'To show on failure')
-  gender: Pronoun;
-}
-
-```
-
-# Summary
-
-Simple REST endpoint and action routing.
-
-- .body to rawBody and .body should be castable
-- object to wrap around head, querystring, path parameters and authorizer that provide 'getAs\*' functions on values.
-
-## Setup
-
-Your handler or entrypoint file and function should look something similar to what is outlined below. First, any customizations of the `EndpointRouter`. Then, you create an instance of the classes containing your `@endpoint` mappings, and their dependencies, as appropriate. Lastly, you expose `EndpointRouter.handle` as the entrypoint so it can take ownership over properly routing your requests.
-
-We recommend you use a .rest postfix on your export in case you want to handle different event trigger types for this lambda function. For example, if you wanted to also listen to an SNS topic you would create another exported fucntion module.export.sns and wouldnt have to worry about remapping module.export.rest.
-
-```
-import { EndpointRouter } from '@mu-ts/endpoints';
-
 /**
- * To modify how the event will be serialized, you can specify your own
- * implementation of the `EventSerailizer`.
+ * It is recommended that you export an instance, and not just the class. This will help your system maintain
+ * better control over how the class is constructed, as its not uncommon for contructors to contain dependencies
+ * and if you have an IoC solution handling this, lets this framework stay un involved.
+ *
+ * _This has not yet been tested with a stand alon function outside of a class._
  */
-EndpointRouter.serializer = new CustomSerializer();
+export * from './path/to/class/with/endpoints';
 
-/**
- * Define the default headers for each response.
- */
-EndpointRouter.setDefaultHeaders({
-  'Server': 'Super awesome',
-  'X-Powered-By': 'Super awesome',
-  'Set-Cookie': 'Secure',
-  'X-Frame-Options': 'DENY',
-  'Content-Type': 'application/json',
-  'Cache-Control': 'max-age=86400'
-});
-
-const usersService: UsersService = new UsersService();
-
-/**
- * Once an instance is created it registers its endpoints with
- * the EndpointRouter. Only do it once.
- */
-new GetUsersEndpoint(usersService);
-
-module.export.rest = EndpointRouter.handle;
+const router: Router = HttpHandler.instance().router();
+module.exports.rest = async (event: any, context: LambdaContext) => router.handle(event, context);
 ```
 
-## Request Routing
+Above this, you would export any of the classes (or functions) that are decorated with endpoint decorators.
 
-For each function that will be handling a specific 'route' you will need to use the `@endpoint()` decorator. At minimum you must provide the resource and action. The resource is the non unique url pattern, such as `/users/{user-id}` not the unique value which might be `/users/1234`. The action should is the HTTPAction or string action (upper case).
+# Endpoints
 
-Conditions allow you to specify limitations for when a specific piece of logic will be invoked. It takes a function with the signature `(body: HTTPBody | undefined, event: HTTPEvent): boolean;`. This means you can do quick logic checks on the body or event to determine if the 'current' state eliminates or includes this endpoint from being invoked.
+To map an endpoint, use the appropriate decorator for the action you want. Then add the resource path as the second argument.
 
-Priority allows you to determine the order of execution for your endpoints. A higher value grants it higher priority in the sort order, placing it first in the list for execution.
+These mappings must be done in addition to the definition of the pathin within your API gateway definition, that routes the requests to the Lambda function.
 
-If multiple endpoints qualify, the first endpoint that returns a value will terminate the execution for other endpoints.
+* @any('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema) [beta] This has not gotten a lot of testing, but intended to be a 'catch all' for any action used on this path.
+* @get('/my-path', deserialize?: jsonSchema)
+* @options('/my-path')
+* @put('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
+* @post('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
+* @put('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
+* @_delete_('/my-path')
 
-Examples:
+The validation schema depends on the implementation of your Validator. The above presumes you are using AJV, which also provides the ability to transform an object to an atlernative format. Generally this would be useful for the outbound request where you want to ensure that a contract is always respected, regardless of how the underlying object being serialized is changed. For example, adding an additional properly to the object would not result in the property being returned in a response, if you had a deserialization schema defined that did not include that additional property.
+
+# Validation
 
 ```
-import { endpoint, endpoints, EndpointResponse, EndpointEvent } from '@authvia/endpoints';
+/** AJV is used by default **/
+const router: Router = HttpHandler.instance().validation('ajv').router();
 
-@endpoints('/v3')
-public class GetUsersEndpoint {
-
-  constructor(usersService: UsersService){
-    this.usersService = usersService;
+/** Supply your own **/
+const myValidator: Validator = {
+  validate(request: HttpRequest<object>, schema: object): T[] | undefined { 
+    // it does a validation.
   }
-
-  @endpoint('PATCH','/users/{user-id}')
-  updateUser(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
-    return HTTPResponse.body('the-body');
-  }
-
   /**
-   * Only call this function for the /users/{user-id} POST operation if the body
-   * contains an attribute action with the value 'promote'.
-   *
-   * This could be more complex, and
+   * Optional, but used to format the response based on the validation errors identified.
    */
-  @endpoint(HTTPAction.POST, '/users/{user-id}', (body:HTTPBody) => body['action'] === 'promote' || false, 50)
-  updateUser(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
-    return HTTPResponse
-      .body('the-body');
+  format(errors: T[], request: HttpRequest<object>): HttpResponse { 
+    // it does formatting.
   }
+}
+const router: Router = HttpHandler.instance().validation(myValidator).router();
+```
 
-  /**
-   * This function will be the 'default'. So if the body does not contain an attribute
-   * called action, with the value 'promote' then this function will be exeecuted.
-   */
-  @endpoint(HTTPAction.POST,'/users/{user-id}')
-  updateUser(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
-    return HTTPResponse.body('the-body');
+# Serialization
+
+Both application/json and application/x-www-form-urlencoded are supported out of the box.
+
+```
+/** AJV is used by default **/
+const xmlSerializer: HttpSerializer = {
+  request?(body: string, schema?: object): object { 
+    // do a de-serialize
+  }
+  response?(body: string | Buffer | object, schema?: object): string {
+    // do a serialize
   }
 }
 
-```
-
-## CORS
-
-For any endpoint you can modify the CORS values that will be returned for a specific request.
-
-Note: This must be done in concert with the `cors:true` within the serverless.yaml file that enables the OPTIONS response in API Gateways.
-
-Example:
-
-```
-
-import { Response } from './endpoints';
-import Response as EndpointResponse from './.endpoints';
-
-@endpoint('GET','/users')
-@cors(allowedOrigin,allowedActions,allowedHeaders,allowCredentials)
-handle(event: EndpointEvent, context: Context):Promise<HTTPResponse> {
-
-  if(hasError){
-   return HTTPResponse
-     .status(400)
-     .body({message: 'I\'m verbose!'},Error);
-  }
-
-  if(updated) {
-    return HTTPResponse
-      .body(user,User)
-      .addHeader('eTag',user.eTag);
-  }
-
-  return HTTPResponse
-    .status(201)
-    .body(user,User)
-    .addHeader('eTag',user.eTag);
-
-}
-
-```
-
-## Redaction
-
-You can mark attributes to be removed from the response when they are being serialized via the @redacted decorator.
-
-```
-public class User {
-  private id: string;
-  private name: string;
-  @redacted
-  private role: string; //Will not be returned when serialized.
-  private createdBy: string;
-}
+/**
+ * You can add as many serializers to the main handler as you want by chainining more .serializer calls.
+ */
+const router: Router = HttpHandler.instance().serializer('application/xml', xmlSerializer).router();
 ```
