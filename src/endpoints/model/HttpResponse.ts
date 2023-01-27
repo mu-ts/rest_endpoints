@@ -4,7 +4,7 @@
 export interface HttpResponse {
     body?: string | object | Buffer;
     isBase64Encoded?: boolean;
-    headers?: { [key:string]: string };
+    headers?: { [key: string]: string };
     statusCode?: number;
     statusDescription?: string;
     cookies?: string[];

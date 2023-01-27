@@ -1,20 +1,19 @@
-import { HttpEndpointFunction } from "../model/HttpEndpointFunction";
-import { HttpRequest } from "../model/HttpRequest";
-import { HttpResponse } from "../model/HttpResponse";
-import { HttpRoute } from "../model/HttpRoute";
-import { LambdaContext } from "../model/LambdaContext";
-import { EventNormalizer } from "./EventNormalizer";
-import { Logger } from "../../utils/Logger";
-import { Headers } from "./Headers";
-import { SerializerService } from "../../serializers/service/SerializerService";
-import { HttpSerializer } from "../../serializers/model/HttpSerializer";
-import { ValidationService } from "../../validation/service/ValidationService";
+import { HttpRequest } from '../model/HttpRequest';
+import { HttpResponse } from '../model/HttpResponse';
+import { HttpRoute } from '../model/HttpRoute';
+import { LambdaContext } from '../model/LambdaContext';
+import { EventNormalizer } from './EventNormalizer';
+import { Logger } from '../../utils/Logger';
+import { Headers } from './Headers';
+import { SerializerService } from '../../serializers/service/SerializerService';
+import { HttpSerializer } from '../../serializers/model/HttpSerializer';
+import { ValidationService } from '../../validation/service/ValidationService';
 
 export class Router {
   private readonly routes: { [key: string]: HttpRoute };
 
   /**
-   * 
+   *
    * @param normalizer used to format the event recieved by the lambda function.
    */
   constructor(
@@ -25,9 +24,9 @@ export class Router {
   }
 
   /**
-   * 
+   *
    * @param route to register with this router.
-   * @returns 
+   * @returns
    */
   public register(route: HttpRoute): Router {
     Logger.debug('Router.register() register route', { route });
@@ -38,30 +37,30 @@ export class Router {
   }
 
   /**
-   * 
-   * @param event 
+   *
+   * @param event
    * @param context see https://docs.aws.amazon.com/lambda/latest/dg/nodejs-context.html
-   * @returns 
+   * @returns
    */
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
     Logger.trace('Router.handler() available events.', Object.keys(this.routes));
     Logger.debug('Router.handler() event recieved.', { event: JSON.stringify(event, undefined, 2) });
 
-    let request: HttpRequest<string | object> = EventNormalizer.normalize(event);
+    const request: HttpRequest<string | object> = EventNormalizer.normalize(event);
 
     Logger.debug('Router.handler() normalized request.', { request: JSON.stringify(request, undefined, 2) });
 
     const { resource, action } = request;
 
-    let route: HttpRoute | undefined = this.routes?.[`${resource}:${action}`]
+    let route: HttpRoute | undefined = this.routes?.[`${resource}:${action}`];
 
     Logger.debug('Router.handler() Direct check for route found a result?', route !== undefined);
 
     /**
-     * If no route was found for the specific action, look under 'ANY' for the 
+     * If no route was found for the specific action, look under 'ANY' for the
      * same path.
      */
-    if (!route) route = this.routes?.[`${resource}:ANY`]
+    if (!route) route = this.routes?.[`${resource}:ANY`];
 
     /**
      * If no route is found, then return a 501.
@@ -76,7 +75,7 @@ export class Router {
         statusCode: 501,
         statusDescription: `The path or action is not implemented "${resource}:${action}".`,
         headers: Headers.get(),
-      }
+      };
     } else {
       /**
        * Handler should actively do less, and allow decorators to do their
@@ -107,26 +106,26 @@ export class Router {
 
           response = await route.function.apply(route.instance, [request, context]);
           response.headers = { ...Headers.get(), ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
-          
+
           Logger.debug('Router.handler() Response after execution.', { response });
         }
 
       } catch (error) {
         Logger.error('Router.handler() HttpEndpointFunction implementation threw an exception.', error);
-        if(error.message.includes('schema is invalid')) {
+        if (error.message.includes('schema is invalid')) {
           response = {
             body: { message: 'Validation schema for this route is invalid. Check your schema using a JSON schema validator.' },
             statusCode: 500,
             statusDescription: 'Invalid Validation Schema',
             headers: Headers.get(),
-          }
+          };
         } else {
           response = {
             body: { message: 'Unhandled error encountered.' },
             statusCode: 500,
             statusDescription: 'Unhandled error encountered.',
             headers: Headers.get(),
-          }
+          };
         }
       }
     }

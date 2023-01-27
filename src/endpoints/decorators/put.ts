@@ -1,10 +1,13 @@
-import { HttpHandler } from "../../HttpHandler";
-import { HttpAction } from "../model/HttpAction";
+import { HttpHandler } from '../../HttpHandler';
+import { HttpAction } from '../model/HttpAction';
 
 /**
- * 
+ *
  * @param path definition for this GET action mapping. This would include the path names ie, /pathy/{id}
- * @returns 
+ * @param validation
+ * @param deserialize
+ * @param serialize
+ * @returns
  */
 export function put(path: string, validation?: object, deserialize?: object, serialize?: object) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {

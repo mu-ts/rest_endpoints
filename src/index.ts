@@ -30,6 +30,8 @@ export * from './HttpHandler';
  */
 export * from './endpoints/model/HttpRequest';
 export * from './endpoints/model/HttpResponse';
+export * from './endpoints/model/LambdaContext';
+export * from './endpoints/services/Router';
 export * from './endpoints/decorators/any';
 export * from './endpoints/decorators/get';
 export * from './endpoints/decorators/option';

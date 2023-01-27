@@ -1,30 +1,27 @@
-import Ajv, { ValidateFunction, ErrorObject } from "ajv";
-import { HttpRequest } from "../../endpoints/model/HttpRequest";
-import { Validator } from "../model/Validator";
-import { HttpResponse } from "../../endpoints/model/HttpResponse";
+import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
+import { HttpRequest } from '../../endpoints/model/HttpRequest';
+import { Validator } from '../model/Validator';
+import { HttpResponse } from '../../endpoints/model/HttpResponse';
 
-export class AJVValidator implements Validator<ErrorObject>{
+export class AJVValidator implements Validator<ErrorObject> {
 
   private readonly ajv: Ajv;
 
-  constructor(){
+  constructor() {
     this.ajv = new Ajv();
   }
 
   public validate(request: HttpRequest<object>, schema: object): ErrorObject[] | undefined {
     const validate: ValidateFunction = this.ajv.compile(schema);
-
     if (validate(request.body)) return undefined;
 
     const { errors } = validate;
-
     if (!errors) return undefined;
-
     return errors;
   }
 
   public format(errors: ErrorObject[], request: HttpRequest<object>): HttpResponse {
-    return { 
+    return {
       body: {
         path: request.path,
         action: request.action,
@@ -60,10 +57,10 @@ export class AJVValidator implements Validator<ErrorObject>{
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
       }
-    }
+    };
   }
-  
+
   private get(path: string, payload: any) {
-    return path.split('.').reduce((accumulator: { [key:string]: any | undefined }, key: string) => (accumulator[key] === undefined ? accumulator : accumulator[key]), payload as { [key:string]: any | undefined });
+    return path?.split('.').reduce((accumulator: { [key: string]: any | undefined }, key: string) => (accumulator[key] === undefined ? accumulator : accumulator[key]), payload as { [key: string]: any | undefined });
   }
 }

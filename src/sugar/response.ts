@@ -1,4 +1,4 @@
-import { HttpResponse } from "../endpoints/model/HttpResponse";
+import { HttpResponse } from '../endpoints/model/HttpResponse';
 
 export function response(statusCode?: number, body?: any, headers?: { [key: string]: string }, statusDescription?: string): HttpResponse {
   return {
@@ -7,5 +7,5 @@ export function response(statusCode?: number, body?: any, headers?: { [key: stri
     statusDescription,
     headers,
     isBase64Encoded: false,
-  }
+  };
 }

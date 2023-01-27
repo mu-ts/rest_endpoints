@@ -1,8 +1,8 @@
-import { HttpAction } from "./HttpAction";
-import { HttpEndpointFunction } from "./HttpEndpointFunction";
+import { HttpAction } from './HttpAction';
+import { HttpEndpointFunction } from './HttpEndpointFunction';
 
 /**
- * Represents a single HTTP route along with all of the
+ * Represents a single HTTP route along with all the
  * mapped functions.
  */
 export interface HttpRoute {

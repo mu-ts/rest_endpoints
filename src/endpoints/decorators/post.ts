@@ -1,12 +1,14 @@
-import { HttpHandler } from "../../HttpHandler";
-import { HttpAction } from "../model/HttpAction";
+import { HttpHandler } from '../../HttpHandler';
+import { HttpAction } from '../model/HttpAction';
 
 /**
- * 
+ *
  * @param path definition for this POST action mapping. This would include the path names ie, /pathy/{id}
  * @param validation schema for validating the payload of the request body. If it is not valid the endpoint
  *        function will not be invoked.
- * @returns 
+ * @param deserialize
+ * @param serialize
+ * @returns
  */
 export function post(path: string, validation?: object, deserialize?: object, serialize?: object) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {

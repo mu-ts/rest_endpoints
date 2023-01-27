@@ -1,6 +1,6 @@
 # Objective
 
-Create a lightweight solution for routing endpoing requests recieved by a lambda function to different handlers, written in TypeScript. Targeted to work for AWS http/rest endpoints and own all of the normal middleware that might exist, like facilitating validation, serialization and cors.
+Create a lightweight solution for routing endpoint requests received by a lambda function to different handlers, written in TypeScript. Targeted to work for AWS http/rest endpoints and own all the normal middleware that might exist, like facilitating validation, serialization and cors.
 
 # Start
 
@@ -26,7 +26,7 @@ Above this, you would export any of the classes (or functions) that are decorate
 
 To map an endpoint, use the appropriate decorator for the action you want. Then add the resource path as the second argument.
 
-These mappings must be done in addition to the definition of the pathin within your API gateway definition, that routes the requests to the Lambda function.
+These mappings must be done in addition to the definition of the pathing within your API gateway definition, that routes the requests to the Lambda function.
 
 * @any('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema) [beta] This has not gotten a lot of testing, but intended to be a 'catch all' for any action used on this path.
 * @get('/my-path', deserialize?: jsonSchema)
@@ -36,7 +36,7 @@ These mappings must be done in addition to the definition of the pathin within y
 * @put('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
 * @_delete_('/my-path')
 
-The validation schema depends on the implementation of your Validator. The above presumes you are using AJV, which also provides the ability to transform an object to an atlernative format. Generally this would be useful for the outbound request where you want to ensure that a contract is always respected, regardless of how the underlying object being serialized is changed. For example, adding an additional properly to the object would not result in the property being returned in a response, if you had a deserialization schema defined that did not include that additional property.
+The validation schema depends on the implementation of your Validator. The above presumes you are using AJV, which also provides the ability to transform an object to an alternative format. Generally this would be useful for the outbound request where you want to ensure that a contract is always respected, regardless of how the underlying object being serialized is changed. For example, adding a properly to the object would not result in the property being returned in a response, if you had a deserialization schema defined that did not include that additional property.
 
 # Sugar
 
@@ -89,7 +89,7 @@ const router: Router = HttpHandler.instance().serializer('application/xml', xmlS
 
 # Cors
 
-Use the @cors decorator, which is pretty self explanitory. If you are using http endpoints instead of rest endpoints then cors should be a cloud formation setting and not something your code needs to handle.
+Use the @cors decorator, which is pretty self-explanatory. If you are using http endpoints instead of rest endpoints then cors should be a cloud formation setting and not something your code needs to handle.
 
 # Example
 
@@ -146,7 +146,7 @@ export const createUser: CreateUser = new CreateUser();
 
 # Common Problems
 
-Don't map invocation directly to router.handle, it loses hold of 'this' and has trouble executing functions. So while its a bit cleaner, it doesnt work.
+Don't map invocation directly to router.handle, it loses hold of 'this' and has trouble executing functions. So while it's a bit cleaner, it doesn't work.
 
 ```
 module.export.rest = HttpHandler.instance().router().handle;
