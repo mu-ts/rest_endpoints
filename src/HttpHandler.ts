@@ -41,9 +41,9 @@ export class HttpHandler {
    * application/json is supporte by default.
    * @param serializers and their associated content type.
    */
-  public serializer(mimeType: string, serializer: HttpSerializer): HttpHandler {
+  public serializer(serializer: HttpSerializer): HttpHandler {
     if (!this.serializerService) this.serializerService = new SerializerService();
-    this.serializerService.register(mimeType, serializer);
+    this.serializerService.register( serializer);
     return this;
   }
 

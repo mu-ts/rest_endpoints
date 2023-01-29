@@ -8,6 +8,10 @@ export class JSONSerializer implements HttpSerializer {
     this.ajv = new Ajv();
   }
 
+  contentType(): string {
+    return 'application/json';
+  }
+
   request?(body: string, schema?: object): object {
     if (!schema) return JSON.parse(body);
     const parser: JTDParser =  this.ajv.compileParser(schema as SchemaObject);

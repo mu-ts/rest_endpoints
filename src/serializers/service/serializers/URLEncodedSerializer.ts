@@ -2,6 +2,10 @@ import { HttpSerializer } from '../../model/HttpSerializer';
 
 export class URLEncodedSerializer implements HttpSerializer {
 
+  contentType(): string {
+    return 'application/x-www-form-urlencoded';
+  }
+
   /**
    *
    * @param body in the querystring format, converted to an object.

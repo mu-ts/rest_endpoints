@@ -10,16 +10,15 @@ export class SerializerService {
   private readonly serializers: { [key: string]: HttpSerializer };
 
   constructor() {
-    this.serializers = {
-      'application/json': new JSONSerializer(),
-      'application/x-www-form-urlencoded': new URLEncodedSerializer(),
-    };
+    this.serializers = {};
+    this.register(new JSONSerializer());
+    this.register(new URLEncodedSerializer());
     Logger.debug('SerializerService.init()', Object.keys(this.serializers));
   }
 
-  public register(mimeType: string, serializer: HttpSerializer) {
-    this.serializers[mimeType] = serializer;
-    Logger.debug('SerializerService.register()', { mimeType, serializers: Object.keys(this.serializers) });
+  public register(serializer: HttpSerializer) {
+    this.serializers[serializer.contentType()] = serializer;
+    Logger.debug('SerializerService.register()', { mimeType: serializer.contentType(), serializers: Object.keys(this.serializers) });
   }
 
   /**
