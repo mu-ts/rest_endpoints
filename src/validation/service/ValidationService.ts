@@ -13,7 +13,7 @@ export class ValidationService {
 
   private readonly validator: Validator<any>;
 
-  constructor(provider: string | Validator<any>) {
+  constructor(provider: string | Validator<any> = 'ajv') {
     if (provider === 'ajv') this.validator = new AJVValidator();
     else this.validator = provider as Validator<any>;
   }

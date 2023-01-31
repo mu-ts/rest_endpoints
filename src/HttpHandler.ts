@@ -38,7 +38,7 @@ export class HttpHandler {
   }
 
   /**
-   * application/json is supporte by default.
+   * application/json is supported by default.
    * @param serializers and their associated content type.
    */
   public serializer(serializer: HttpSerializer): HttpHandler {

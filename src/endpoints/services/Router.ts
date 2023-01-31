@@ -14,7 +14,7 @@ export class Router {
 
   /**
    *
-   * @param normalizer used to format the event recieved by the lambda function.
+   * @param normalizer used to format the event received by the lambda function.
    */
   constructor(
     private readonly serializerService: SerializerService,
@@ -44,7 +44,7 @@ export class Router {
    */
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
     Logger.trace('Router.handler() available events.', Object.keys(this.routes));
-    Logger.debug('Router.handler() event recieved.', { event: JSON.stringify(event, undefined, 2) });
+    Logger.debug('Router.handler() event received.', { event: JSON.stringify(event, undefined, 2) });
 
     const request: HttpRequest<string | object> = EventNormalizer.normalize(event);
 
@@ -80,7 +80,7 @@ export class Router {
       /**
        * Handler should actively do less, and allow decorators to do their
        * jobs in isolation. Serialization will happen at the macro level to
-       * attempt to provide a more consistent implementation for Lamda code.
+       * attempt to provide a more consistent implementation for Lambda code.
        */
       try {
         if (request.body) {
@@ -102,7 +102,7 @@ export class Router {
         }
 
         if (!response) {
-          Logger.debug('Router.handler() Executing function.', { requst: JSON.stringify(request), function: JSON.stringify(route.function) });
+          Logger.debug('Router.handler() Executing function.', { request: JSON.stringify(request), function: JSON.stringify(route.function) });
 
           response = await route.function.apply(route.instance, [request, context]);
           response.headers = { ...Headers.get(), ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
@@ -143,7 +143,7 @@ export class Router {
       else Logger.warn('Router.handler() No response serializer found.');
     }
 
-    Logger.debug('Router.handler() Repsonse being returned.', JSON.stringify(response));
+    Logger.debug('Router.handler() Response being returned.', JSON.stringify(response));
 
     return response;
   }

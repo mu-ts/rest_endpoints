@@ -1,7 +1,7 @@
 import { HttpRequest } from '../model/HttpRequest';
 
 /**
- * Converts the payload recieved by the lambda event to a common format
+ * Converts the payload received by the lambda event to a common format
  * for all implementing functions to use.
  *
  * This format intentionally omits some information in some cases because
