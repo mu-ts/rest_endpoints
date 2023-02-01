@@ -1,4 +1,5 @@
 import Ajv, { JTDParser, SchemaObject } from 'ajv/dist/jtd';
+import { Logger } from '../../../utils/Logger';
 import { HttpSerializer } from '../../model/HttpSerializer';
 
 export class JSONSerializer implements HttpSerializer {
@@ -18,12 +19,13 @@ export class JSONSerializer implements HttpSerializer {
     return parser(body) as object;
   }
 
-  response?(body: string | Buffer | object, schema?: object): string {
+  response?(body: string | Buffer | object, schema?: object): Buffer {
     if (!schema) {
-      if (typeof body === 'string') return body;
-      if (Buffer.isBuffer(body)) return JSON.stringify(body.toString('utf8'));
-      return JSON.stringify(body);
+      Logger.trace('response() no schema.', { bodyType: typeof body })
+      if (typeof body === 'string') return Buffer.from(body, 'utf-8');
+      if (Buffer.isBuffer(body)) return body;
+      return Buffer.from(JSON.stringify(body), 'utf-8');
     }
-    return this.ajv.compileSerializer(schema as SchemaObject)(body);
+    return Buffer.from(this.ajv.compileSerializer(schema as SchemaObject)(body), 'utf-8');
   }
 }

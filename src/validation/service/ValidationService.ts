@@ -1,3 +1,4 @@
+import { Headers } from '../../endpoints/services/Headers';
 import { HttpRequest } from '../../endpoints/model/HttpRequest';
 import { HttpResponse } from '../../endpoints/model/HttpResponse';
 import { Logger } from '../../utils/Logger';
@@ -21,6 +22,7 @@ export class ValidationService {
   public validate(request: HttpRequest<object>, schema: object): HttpResponse | undefined {
     if (this.validator) {
       const errors: any[] | undefined = this.validator.validate(request, schema);
+
       Logger.debug('ValidationService.validate() results of validation.', { errors });
 
       if (errors) {
@@ -30,8 +32,11 @@ export class ValidationService {
           statusCode: 400,
           statusDescription: 'The body of the request did not pass validation.',
           headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': '*',
+            ...Headers.get(),
+            ... {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': '*',
+            }
           }
         };
       }

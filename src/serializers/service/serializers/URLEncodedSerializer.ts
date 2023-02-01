@@ -25,11 +25,11 @@ export class URLEncodedSerializer implements HttpSerializer {
    * @param body string or buffers are returned, objects are expected to be flat.
    * @returns
    */
-  public response?(body: Record<string, string>): string {
-    if (typeof body === 'string') return body;
-    if (Buffer.isBuffer(body)) return JSON.stringify(body.toString('utf8'));
-    return Object.keys(body)
+  public response?(body: Record<string, string>): Buffer {
+    if (typeof body === 'string') return Buffer.from(body,'utf-8');
+    if (Buffer.isBuffer(body)) return body;
+    return Buffer.from(Object.keys(body)
       .map((key: string) => `${key}=${encodeURIComponent(body[key] as string)}`)
-      .join('&');
+      .join('&'), 'utf-8');
   }
 }

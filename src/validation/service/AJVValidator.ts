@@ -1,4 +1,4 @@
-import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
+import Ajv, { ErrorObject, str, ValidateFunction } from 'ajv';
 import { HttpRequest } from '../../endpoints/model/HttpRequest';
 import { Validator } from '../model/Validator';
 import { HttpResponse } from '../../endpoints/model/HttpResponse';
@@ -57,7 +57,7 @@ export class AJVValidator implements Validator<ErrorObject> {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
       }
-    };
+    }
   }
 
   private get(path: string, payload: any) {
