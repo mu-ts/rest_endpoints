@@ -52,7 +52,6 @@ export class AJVValidator implements Validator<ErrorObject> {
           })),
       },
       statusCode: 400,
-      statusDescription: 'The body of the request did not pass validation.',
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',

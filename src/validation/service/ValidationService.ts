@@ -30,7 +30,6 @@ export class ValidationService {
         return {
           body: { errors },
           statusCode: 400,
-          statusDescription: 'The body of the request did not pass validation.',
           headers: {
             ...Headers.get(),
             ... {

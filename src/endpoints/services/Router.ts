@@ -116,13 +116,11 @@ export class Router {
           response = {
             body: { message: 'Validation schema for this route is invalid. Check your schema using a JSON schema validator.' },
             statusCode: 500,
-            statusDescription: 'Invalid Validation Schema',
           };
         } else {
           response = {
             body: { message: 'Unhandled error encountered.' },
             statusCode: 500,
-            statusDescription: 'Unhandled error encountered.',
           };
         }
       }
