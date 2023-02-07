@@ -26,7 +26,7 @@ export class URLEncodedSerializer implements HttpSerializer {
    * @returns
    */
   public response?(body: Record<string, string>): Buffer {
-    if (typeof body === 'string') return Buffer.from(body,'utf-8');
+    if (typeof body === 'string') return Buffer.from(body, 'utf-8');
     if (Buffer.isBuffer(body)) return body;
     return Buffer.from(Object.keys(body)
       .map((key: string) => `${key}=${encodeURIComponent(body[key] as string)}`)

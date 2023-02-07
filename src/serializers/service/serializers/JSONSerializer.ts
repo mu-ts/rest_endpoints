@@ -21,7 +21,7 @@ export class JSONSerializer implements HttpSerializer {
 
   response?(body: string | Buffer | object, schema?: object): Buffer {
     if (!schema) {
-      Logger.trace('response() no schema.', { bodyType: typeof body })
+      Logger.trace('response() no schema.', { bodyType: typeof body });
       if (typeof body === 'string') return Buffer.from(body, 'utf-8');
       if (Buffer.isBuffer(body)) return body;
       return Buffer.from(JSON.stringify(body), 'utf-8');
