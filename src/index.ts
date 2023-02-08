@@ -21,6 +21,12 @@ export * from './cors/model/HttpCORS';
 export * from './cors/decorator/cors';
 
 /**
+ * Object Factory
+ */
+export * from './objects/model/ObjectFactory';
+export * from './objects/model/Constructable';
+
+/**
  * Entrypoint object.
  */
 export * from './HttpHandler';

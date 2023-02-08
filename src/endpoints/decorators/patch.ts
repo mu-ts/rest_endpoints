@@ -14,8 +14,9 @@ export function patch(path: string, validation?: object, deserialize?: object, s
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    const instance: any = new target.constructor();
-    HttpHandler.instance().router().register({
+    const handler: HttpHandler = HttpHandler.instance();
+    const instance: any = handler.construct(target.constructor);
+    handler.router().register({
       function: descriptor.value,
       action: HttpAction.PATCH,
       instance,

@@ -6,6 +6,9 @@ import { CORS } from './cors/service/CORS';
 import { HttpCORS } from './cors/model/HttpCORS';
 import { HttpSerializer } from './serializers/model/HttpSerializer';
 import { Headers } from './endpoints/services/Headers';
+import { ObjectFactory } from 'objects/model/ObjectFactory';
+import { BasicObjectFactory } from 'objects/service/BasicObjectFactory';
+import { Constructable } from 'objects/model/Constructable';
 
 /**
  * Entrypoint handler for lambda functions accepting http requests.
@@ -17,6 +20,8 @@ export class HttpHandler {
 
   private serializerService?: SerializerService;
 
+  private _objectFactory?: ObjectFactory;
+
   private routes?: Router;
 
   private constructor() {}
@@ -25,6 +30,19 @@ export class HttpHandler {
     if (HttpHandler._instance) return HttpHandler._instance;
     HttpHandler._instance = new HttpHandler();
     return HttpHandler._instance;
+  }
+
+  /**
+   * @param constructable class.
+   * @returns 
+   */
+  public construct<T>(constructable: Constructable<T>): T {
+    return this._objectFactory?.instantiate(constructable);
+  }
+
+  public objectFactory(objectFactory: ObjectFactory): HttpHandler {
+    this._objectFactory = objectFactory;
+    return this;
   }
 
   /**
@@ -66,9 +84,12 @@ export class HttpHandler {
   }
 
   public router(): Router {
-    if (!this.serializerService) this.serializerService = new SerializerService();
-    if (!this.validationService) this.validationService = new ValidationService('ajv');
-    if (!this.routes) this.routes = new Router(this.serializerService, this.validationService);
+    if( !this.routes) {
+      if (!this._objectFactory) this._objectFactory = new BasicObjectFactory();
+      if (!this.serializerService) this.serializerService = new SerializerService();
+      if (!this.validationService) this.validationService = new ValidationService('ajv');
+      if (!this.routes) this.routes = new Router(this.serializerService, this.validationService);
+    }
     return this.routes;
   }
 }

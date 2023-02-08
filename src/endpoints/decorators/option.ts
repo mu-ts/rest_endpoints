@@ -11,8 +11,9 @@ export function option(path: string) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    const instance: any = new target.constructor();
-    HttpHandler.instance().router().register({
+    const handler: HttpHandler = HttpHandler.instance();
+    const instance: any = handler.construct(target.constructor);
+    handler.router().register({
       path,
       instance,
       action: HttpAction.OPTIONS,

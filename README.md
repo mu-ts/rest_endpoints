@@ -30,11 +30,11 @@ These mappings must be done in addition to the definition of the pathing within 
 
 * @any('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema) [beta] This has not gotten a lot of testing, but intended to be a 'catch all' for any action used on this path.
 * @get('/my-path', deserialize?: jsonSchema)
-* @options('/my-path')
 * @put('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
 * @post('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
 * @put('/my-path', validation?: ajvValidationSchema, deserialize?: jsonSchema, serialize?: jsonSchema)
-* @_delete_('/my-path')
+* @xdelete('/my-path')
+* @options('/my-path')
 
 The validation schema depends on the implementation of your Validator. The above presumes you are using AJV, which also provides the ability to transform an object to an alternative format. Generally this would be useful for the outbound request where you want to ensure that a contract is always respected, regardless of how the underlying object being serialized is changed. For example, adding a properly to the object would not result in the property being returned in a response, if you had a deserialization schema defined that did not include that additional property.
 
@@ -44,6 +44,27 @@ These helper methods can help reduce the amount of code you need to write.
 
 * `response(statusCode, objectToSerialize)` can be used to return a quick HttpResponse and not having to format a whole object.
 * `json('jsonFile.json')` to load a JSON file. Useful for externalizing JSON schema files for validation. `@post('/some/path', json('myschema.validation.json'))`
+
+# Object Factory
+
+If your instances need complex instantiation, you can implement the `ObjectFactory` interface to populate the instances. The default implementation just uses 'new' on the class being decorated.
+
+Decorated functions recieve the registered 'instance' as the basis for execution of the function, `function.apply(instance, [request, context])`.
+
+This is useful if you are using IoC.
+
+```
+import { ObjectFactory, Constructable } = '@mu-ts/endpoints';
+
+class MyObjectFactory implements ObjectFactory {
+  
+  public instantiate<T>(constructable: Constructable<T>): T {
+    const name: string = constructable.name;
+    const instance: T = superSpecialStuff(name);
+    return instance
+  }
+} 
+```
 
 # Validation
 
