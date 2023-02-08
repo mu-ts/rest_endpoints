@@ -25,6 +25,18 @@ export abstract class Logger {
     if (this.isLevel(10)) console.error(args);
   }
 
+  public static timeStart(timer: string): void {
+    console.time(timer);
+  }
+
+  public static timeEnd(timer: string): void {
+    try {
+      console.timeEnd(timer);
+    } catch(error) {
+      // Swallow.
+    }
+  }
+
   private static nameToLevel(name?: string): number {
     switch (name) {
       case 'TRACE': return 0;

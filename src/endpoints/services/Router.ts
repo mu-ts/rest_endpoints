@@ -43,6 +43,8 @@ export class Router {
    * @returns
    */
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
+    const loggingTrackerId: string = `${event.path || event.rawPath}-handle()-${context.awsRequestId}`;
+    Logger.timeStart(loggingTrackerId);
     Logger.trace('Router.handler() available events.', Object.keys(this.routes));
     Logger.trace('Router.handler() event received.', { event: JSON.stringify(event, undefined, 2) });
 
@@ -153,6 +155,7 @@ export class Router {
     response.headers = { ...Headers.get(), ...response.headers };
 
     Logger.trace('Router.handler() Response being returned.', response);
+    Logger.timeEnd(loggingTrackerId);
 
     return response;
   }
