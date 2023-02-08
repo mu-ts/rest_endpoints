@@ -105,8 +105,11 @@ export class Router {
 
         if (!response) {
           Logger.trace('Router.handler() Executing function.', { request: JSON.stringify(request), function: JSON.stringify(route.function) });
-
+          
+          Logger.timeStamp(loggingTrackerId);
           response = await route.function.apply(route.instance, [request, context]);
+          Logger.timeStamp(loggingTrackerId);
+
           response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
 
           Logger.trace('Router.handler() Response after execution.', { response });
