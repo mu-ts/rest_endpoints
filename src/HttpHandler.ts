@@ -6,9 +6,9 @@ import { CORS } from './cors/service/CORS';
 import { HttpCORS } from './cors/model/HttpCORS';
 import { HttpSerializer } from './serializers/model/HttpSerializer';
 import { Headers } from './endpoints/services/Headers';
-import { ObjectFactory } from 'objects/model/ObjectFactory';
-import { BasicObjectFactory } from 'objects/service/BasicObjectFactory';
-import { Constructable } from 'objects/model/Constructable';
+import { ObjectFactory } from './objects/model/ObjectFactory';
+import { BasicObjectFactory } from './objects/service/BasicObjectFactory';
+import { Constructable } from './objects/model/Constructable';
 
 /**
  * Entrypoint handler for lambda functions accepting http requests.

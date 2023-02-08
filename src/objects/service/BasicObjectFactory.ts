@@ -1,5 +1,5 @@
-import { Constructable } from "objects/model/Constructable";
-import { ObjectFactory } from "objects/model/ObjectFactory";
+import { Constructable } from "../model/Constructable";
+import { ObjectFactory } from "../model/ObjectFactory";
 
 export class BasicObjectFactory implements ObjectFactory {
   /**
