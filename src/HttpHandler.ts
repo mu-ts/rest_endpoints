@@ -9,7 +9,7 @@ import { Headers } from './endpoints/services/Headers';
 import { ObjectFactory } from './objects/model/ObjectFactory';
 import { BasicObjectFactory } from './objects/service/BasicObjectFactory';
 import { Constructable } from './objects/model/Constructable';
-import { Logger } from 'utils/Logger';
+import { Logger } from './utils/Logger';
 
 /**
  * Entrypoint handler for lambda functions accepting http requests.
