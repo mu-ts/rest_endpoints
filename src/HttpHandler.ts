@@ -9,6 +9,7 @@ import { Headers } from './endpoints/services/Headers';
 import { ObjectFactory } from './objects/model/ObjectFactory';
 import { BasicObjectFactory } from './objects/service/BasicObjectFactory';
 import { Constructable } from './objects/model/Constructable';
+import { Logger } from 'utils/Logger';
 
 /**
  * Entrypoint handler for lambda functions accepting http requests.
@@ -28,6 +29,7 @@ export class HttpHandler {
 
   public static instance(): HttpHandler {
     if (HttpHandler._instance) return HttpHandler._instance;
+    Logger.trace('instance() Creating instance.');
     HttpHandler._instance = new HttpHandler();
     return HttpHandler._instance;
   }
@@ -76,10 +78,15 @@ export class HttpHandler {
   }
 
   public router(): Router {
-    if( !this.routes) {
+    if(!this.routes) {
       if (!this._objectFactory) this._objectFactory = new BasicObjectFactory();
       if (!this.serializerService) this.serializerService = new SerializerService();
       if (!this.validationService) this.validationService = new ValidationService('ajv');
+      Logger.trace('router() Creating instance.', { 
+        serializer: this.serializerService.constructor.name, 
+        objectFactory: this._objectFactory.constructor.name, 
+        validationService: this.validationService.constructor.name
+      });
       if (!this.routes) this.routes = new Router(this.serializerService, this._objectFactory, this.validationService);
     }
     return this.routes;

@@ -15,9 +15,7 @@ export class BasicObjectFactory implements ObjectFactory {
    * @returns 
    */
   public resolve<T>(constructable: Constructable<T>): T {
-    if (!this.instances[constructable.name]) {
-      this.instances[constructable.name] = new constructable;
-    }
+    if (!this.instances[constructable.name]) this.instances[constructable.name] = new constructable;
     return this.instances[constructable.name] as T;
   }
 }
