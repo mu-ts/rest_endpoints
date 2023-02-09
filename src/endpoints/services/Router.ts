@@ -8,6 +8,7 @@ import { Headers } from './Headers';
 import { SerializerService } from '../../serializers/service/SerializerService';
 import { HttpSerializer } from '../../serializers/model/HttpSerializer';
 import { ValidationService } from '../../validation/service/ValidationService';
+import { ObjectFactory } from '../../objects/model/ObjectFactory';
 
 export class Router {
   private readonly routes: { [key: string]: HttpRoute };
@@ -18,6 +19,7 @@ export class Router {
    */
   constructor(
     private readonly serializerService: SerializerService,
+    private readonly objectFactory: ObjectFactory,
     private readonly validationService?: ValidationService,
   ) {
     this.routes = {};
@@ -107,7 +109,16 @@ export class Router {
           Logger.trace('Router.handler() Executing function.', { request: JSON.stringify(request), function: JSON.stringify(route.function) });
           
           Logger.timeStamp(loggingTrackerId);
-          response = await route.function.apply(route.instance, [request, context]);
+          /**
+           * Resolving the instance on each invocation means that instances can be 
+           * created on each invocation if necessary. 
+           * 
+           * Invoking the function directly on the instance also means that maintaining
+           * `this` should be easier for invocation.
+           */
+          const instance: unknown = this.objectFactory.resolve(route.clazz);
+          response = await instance[route.functionName](request, context);
+          // response = await route.function.apply(route.instance, [request, context]);
           Logger.timeStamp(loggingTrackerId);
 
           response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };

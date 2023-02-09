@@ -1,3 +1,4 @@
+import { Constructable } from 'objects/model/Constructable';
 import { HttpAction } from './HttpAction';
 import { HttpEndpointFunction } from './HttpEndpointFunction';
 
@@ -8,8 +9,9 @@ import { HttpEndpointFunction } from './HttpEndpointFunction';
 export interface HttpRoute {
     action: HttpAction;
     path: string;
+    functionName: string;
     function: HttpEndpointFunction;
-    instance: object;
+    clazz: Constructable<unknown>;
     serialize?: object;
     deserialize?: object;
     validation?: object;

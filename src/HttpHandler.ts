@@ -32,14 +32,6 @@ export class HttpHandler {
     return HttpHandler._instance;
   }
 
-  /**
-   * @param constructable class.
-   * @returns 
-   */
-  public construct<T>(constructable: Constructable<T>): T {
-    return this._objectFactory?.instantiate(constructable);
-  }
-
   public objectFactory(objectFactory: ObjectFactory): HttpHandler {
     this._objectFactory = objectFactory;
     return this;
@@ -88,7 +80,7 @@ export class HttpHandler {
       if (!this._objectFactory) this._objectFactory = new BasicObjectFactory();
       if (!this.serializerService) this.serializerService = new SerializerService();
       if (!this.validationService) this.validationService = new ValidationService('ajv');
-      if (!this.routes) this.routes = new Router(this.serializerService, this.validationService);
+      if (!this.routes) this.routes = new Router(this.serializerService, this._objectFactory, this.validationService);
     }
     return this.routes;
   }
