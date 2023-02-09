@@ -11,7 +11,8 @@ import { ValidationService } from '../../validation/service/ValidationService';
 import { ObjectFactory } from '../../objects/model/ObjectFactory';
 
 export class Router {
-  private readonly routes: { [key: string]: HttpRoute };
+
+  private static readonly _routes: { [key: string]: HttpRoute } = {};
 
   /**
    *
@@ -22,20 +23,24 @@ export class Router {
     private readonly objectFactory: ObjectFactory,
     private readonly validationService?: ValidationService,
   ) {
-    this.routes = {};
+    Logger.trace('Router() constructed.');
   }
+
+  public static routes(): { [key: string]: HttpRoute } {
+    return this._routes;
+  }
+  
 
   /**
    *
    * @param route to register with this router.
    * @returns
    */
-  public register(route: HttpRoute): Router {
+  public static register(route: HttpRoute): void {
     Logger.trace('Router.register() register route', { route });
     const path: string = `${route.path}:${route.action}`;
-    this.routes[path] = route;
-    Logger.trace('Router.register() total routes', Object.keys(this.routes));
-    return this;
+    Router.routes[path] = route;
+    Logger.trace('Router.register() total routes', Object.keys(Router.routes));
   }
 
   /**
@@ -47,7 +52,7 @@ export class Router {
   public async handle(event: any, context: LambdaContext): Promise<HttpResponse> {
     const loggingTrackerId: string = `${event.path || event.rawPath}-handle()-${context.awsRequestId}`;
     Logger.timeStart(loggingTrackerId);
-    Logger.trace('Router.handler() available events.', Object.keys(this.routes));
+    Logger.trace('Router.handler() available events.', Object.keys(Router.routes));
     Logger.trace('Router.handler() event received.', { event: JSON.stringify(event, undefined, 2) });
 
     const request: HttpRequest<string | object> = EventNormalizer.normalize(event);
@@ -56,7 +61,7 @@ export class Router {
 
     const { resource, action } = request;
 
-    let route: HttpRoute | undefined = this.routes?.[`${resource}:${action}`];
+    let route: HttpRoute | undefined = Router.routes?.[`${resource}:${action}`];
 
     Logger.trace('Router.handler() Direct check for route found a result?', route !== undefined);
 
@@ -64,7 +69,7 @@ export class Router {
      * If no route was found for the specific action, look under 'ANY' for the
      * same path.
      */
-    if (!route) route = this.routes?.[`${resource}:ANY`];
+    if (!route) route = Router.routes?.[`${resource}:ANY`];
 
     /**
      * If no route is found, then return a 501.

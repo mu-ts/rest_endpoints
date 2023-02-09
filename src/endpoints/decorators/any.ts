@@ -1,4 +1,4 @@
-import { HttpHandler } from '../../HttpHandler';
+import { Router } from '../services/Router';
 import { HttpAction } from '../model/HttpAction';
 
 /**
@@ -15,8 +15,7 @@ export function any(path: string, validation?: object, deserialize?: object, ser
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    const handler: HttpHandler = HttpHandler.instance();
-    handler.router().register({
+    Router.register({
       path,
       clazz: target.constructor,
       action: HttpAction.ANY,

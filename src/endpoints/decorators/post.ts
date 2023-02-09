@@ -1,4 +1,4 @@
-import { HttpHandler } from '../../HttpHandler';
+import { Router } from '../services/Router';
 import { HttpAction } from '../model/HttpAction';
 
 /**
@@ -15,8 +15,7 @@ export function post(path: string, validation?: object, deserialize?: object, se
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    const handler: HttpHandler = HttpHandler.instance();
-    handler.router().register({
+    Router.register({
       functionName: propertyKey,
       function: descriptor.value,
       action: HttpAction.POST,
