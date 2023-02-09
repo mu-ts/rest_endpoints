@@ -17,7 +17,7 @@ export function put(path: string, validation?: object, deserialize?: object, ser
     const handler: HttpHandler = HttpHandler.instance();
     handler.router().register({
       path,
-      clazz: target,
+      clazz: target.constructor,
       action: HttpAction.PUT,
       functionName: propertyKey,
       function: descriptor.value,

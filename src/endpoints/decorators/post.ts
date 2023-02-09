@@ -20,7 +20,7 @@ export function post(path: string, validation?: object, deserialize?: object, se
       functionName: propertyKey,
       function: descriptor.value,
       action: HttpAction.POST,
-      clazz: target,
+      clazz: target.constructor,
       path,
       validation,
       deserialize,

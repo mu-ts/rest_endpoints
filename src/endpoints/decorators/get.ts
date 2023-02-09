@@ -15,7 +15,7 @@ export function get(path: string, deserialize?: object) {
     const handler: HttpHandler = HttpHandler.instance();
     handler.router().register({
       path,
-      clazz: target,
+      clazz: target.constructor,
       action: HttpAction.GET,
       functionName: propertyKey,
       function: descriptor.value,

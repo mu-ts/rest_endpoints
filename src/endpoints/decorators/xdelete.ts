@@ -16,7 +16,7 @@ export function xdelete(path: string) {
     const handler: HttpHandler = HttpHandler.instance();
     handler.router().register({
       path,
-      clazz: target,
+      clazz: target.constructor,
       action: HttpAction.DELETE,
       functionName: propertyKey,
       function: descriptor.value

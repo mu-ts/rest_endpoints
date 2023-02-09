@@ -18,7 +18,7 @@ export function any(path: string, validation?: object, deserialize?: object, ser
     const handler: HttpHandler = HttpHandler.instance();
     handler.router().register({
       path,
-      clazz: target,
+      clazz: target.constructor,
       action: HttpAction.ANY,
       functionName: propertyKey,
       function: descriptor.value,

@@ -19,7 +19,7 @@ export function patch(path: string, validation?: object, deserialize?: object, s
       functionName: propertyKey,
       function: descriptor.value,
       action: HttpAction.PATCH,
-      clazz: target,
+      clazz: target.constructor,
       path,
       validation,
       deserialize,

@@ -107,7 +107,6 @@ export class Router {
 
         if (!response) {
           Logger.trace('Router.handler() Executing function.', { request: JSON.stringify(request), function: JSON.stringify(route.function) });
-          
           Logger.timeStamp(loggingTrackerId);
           /**
            * Resolving the instance on each invocation means that instances can be 
