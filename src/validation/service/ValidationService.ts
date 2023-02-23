@@ -11,7 +11,7 @@ import { AjvRequestValidator } from './AjvRequestValidator';
  * with the @validation decorator.
  */
 export class ValidationService {
-  
+
   private readonly validator: Validator<any>;
 
   constructor(provider: string | Validator<any> = 'ajv') {

@@ -29,7 +29,7 @@ export class Router {
   public static routes(): { [key: string]: HttpRoute } {
     return this._routes;
   }
-  
+
 
   /**
    *
@@ -114,9 +114,9 @@ export class Router {
           Logger.trace('Router.handler() Executing function.', { request: JSON.stringify(request), function: JSON.stringify(route.function) });
           Logger.timeStamp(loggingTrackerId);
           /**
-           * Resolving the instance on each invocation means that instances can be 
-           * created on each invocation if necessary. 
-           * 
+           * Resolving the instance on each invocation means that instances can be
+           * created on each invocation if necessary.
+           *
            * Invoking the function directly on the instance also means that maintaining
            * `this` should be easier for invocation.
            */

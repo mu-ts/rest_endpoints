@@ -28,7 +28,7 @@ export abstract class Logger {
   public static timeStart(timer: string): void {
     try {
       console.time(timer);
-    } catch(error) {
+    } catch (error) {
       // Swallow.
     }
   }
@@ -36,7 +36,7 @@ export abstract class Logger {
   public static timeStamp(timer: string): void {
     try {
       console.timeStamp(timer);
-    } catch(error) {
+    } catch (error) {
       // Swallow.
     }
   }
@@ -44,7 +44,7 @@ export abstract class Logger {
   public static timeEnd(timer: string): void {
     try {
       console.timeEnd(timer);
-    } catch(error) {
+    } catch (error) {
       // Swallow.
     }
   }

@@ -8,6 +8,7 @@ export * from './sugar/response';
  * Validator
  */
 export * from './validation/model/Validator';
+export * from './validation/service/AjvRequestValidator';
 
 /**
  * Serialization

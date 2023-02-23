@@ -81,13 +81,13 @@ export class HttpHandler {
   }
 
   public router(): Router {
-    if(!this._router) {
+    if (!this._router) {
       if (!this._objectFactory) this._objectFactory = new BasicObjectFactory();
       if (!this.serializerService) this.serializerService = new SerializerService();
       if (!this.validationService) this.validationService = new ValidationService('ajv');
       Logger.trace('HttpHandler.router() Creating instance.', {
-        serializer: this.serializerService.constructor.name, 
-        objectFactory: this._objectFactory.constructor.name, 
+        serializer: this.serializerService.constructor.name,
+        objectFactory: this._objectFactory.constructor.name,
         validationService: this.validationService.constructor.name
       });
       if (!this._router) this._router = new Router(this.serializerService, this._objectFactory, this.validationService);
