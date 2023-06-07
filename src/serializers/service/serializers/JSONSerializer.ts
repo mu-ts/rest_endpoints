@@ -1,6 +1,6 @@
 import Ajv, { JTDParser, SchemaObject } from 'ajv/dist/jtd';
 import { Logger } from '../../../utils/Logger';
-import { HttpSerializer } from '@';
+import { HttpSerializer } from '../../model/HttpSerializer';
 
 export class JSONSerializer implements HttpSerializer {
   private readonly ajv: Ajv;

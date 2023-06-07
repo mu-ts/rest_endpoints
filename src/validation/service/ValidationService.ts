@@ -1,6 +1,10 @@
 import { Headers } from '../../endpoints/services/Headers';
-import { AjvRequestValidator, HttpRequest, HttpResponse, Validator } from '@';
+import { HttpRequest } from '../../endpoints/model/HttpRequest';
+import { HttpResponse } from '../../endpoints/model/HttpResponse';
 import { Logger } from '../../utils/Logger';
+import { Validator } from '../model/Validator';
+import { AjvRequestValidator } from './AjvRequestValidator';
+
 
 /**
  * Handles knowing how to validate the inbound request in concert

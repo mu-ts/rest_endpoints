@@ -1,4 +1,5 @@
-import { Constructable, ObjectFactory } from '@';
+import { Constructable } from '../model/Constructable';
+import { ObjectFactory } from '../model/ObjectFactory';
 
 export class BasicObjectFactory implements ObjectFactory {
   private readonly instances: Record<string, unknown>;
