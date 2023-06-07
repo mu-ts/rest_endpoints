@@ -38,8 +38,8 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
   public format(errors: ErrorObject[], request: HttpRequest<object>): HttpResponse {
 
     return {
-      body:
-        errors
+      body: {
+        message: errors
           .map(({
             keyword,
             message,
@@ -65,6 +65,7 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
             } : undefined,
           }))
           .map(({ message, data }) => (message || data) as string).join(','),
+      },
       statusCode: 400,
       headers: {
         'Access-Control-Allow-Origin': '*',
