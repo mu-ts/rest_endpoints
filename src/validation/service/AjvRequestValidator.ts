@@ -64,7 +64,7 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
               type: data ? typeof data : undefined,
             } : undefined,
           }))
-          .map(({ message, data }) => (message || data) as string).join(','),
+          .map(({ message, data }) => (message || data) as string),
       },
       statusCode: 400,
       headers: {
