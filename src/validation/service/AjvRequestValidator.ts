@@ -64,7 +64,8 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
               type: data ? typeof data : undefined,
             } : undefined,
           }))
-          .map(({ message, data }) => (message || data) as string),
+          .map(({ message, data }) => (message || data) as string)
+          .filter((message: string) => message !== 'must match \"then\" schema'),
       },
       statusCode: 400,
       headers: {
