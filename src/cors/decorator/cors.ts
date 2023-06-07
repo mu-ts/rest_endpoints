@@ -24,7 +24,7 @@ export function cors(options?: Partial<HttpCORS>) {
 
       let headers: {[key: string]: string} = response.headers || {};
 
-      Logger.debug('cors() - Applying cors headers to the repsonse.');
+      Logger.debug('cors() - Applying cors headers to the response.');
 
       headers = CORS.apply(headers, options);
 

@@ -1,4 +1,4 @@
-import { HttpCORS } from '../model/HttpCORS';
+import { HttpCORS } from '@';
 
 export abstract class CORS {
 

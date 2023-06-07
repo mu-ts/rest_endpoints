@@ -1,4 +1,4 @@
-import { HttpRequest } from '../model/HttpRequest';
+import { HttpRequest } from '@';
 
 /**
  * Converts the payload received by the lambda event to a common format

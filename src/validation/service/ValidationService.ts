@@ -1,10 +1,6 @@
 import { Headers } from '../../endpoints/services/Headers';
-import { HttpRequest } from '../../endpoints/model/HttpRequest';
-import { HttpResponse } from '../../endpoints/model/HttpResponse';
+import { AjvRequestValidator, HttpRequest, HttpResponse, Validator } from '@';
 import { Logger } from '../../utils/Logger';
-import { Validator } from '../model/Validator';
-import { AjvRequestValidator } from './AjvRequestValidator';
-
 
 /**
  * Handles knowing how to validate the inbound request in concert
@@ -23,7 +19,7 @@ export class ValidationService {
     if (this.validator) {
       const errors: any[] | undefined = this.validator.validate(request, schema);
 
-      Logger.debug('ValidationService.validate() results of validation.', { errors });
+      Logger.debug('ValidationService.validate()', 'results of validation.', { errors: JSON.stringify(errors, undefined, 3) });
 
       if (errors) {
         if (this.validator.format) return this.validator.format(errors, request);

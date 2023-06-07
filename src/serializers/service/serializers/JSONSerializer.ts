@@ -1,6 +1,6 @@
 import Ajv, { JTDParser, SchemaObject } from 'ajv/dist/jtd';
 import { Logger } from '../../../utils/Logger';
-import { HttpSerializer } from '../../model/HttpSerializer';
+import { HttpSerializer } from '@';
 
 export class JSONSerializer implements HttpSerializer {
   private readonly ajv: Ajv;
@@ -15,11 +15,12 @@ export class JSONSerializer implements HttpSerializer {
 
   request?(body: string, schema?: object): object {
     if (!schema) return JSON.parse(body);
-    const parser: JTDParser =  this.ajv.compileParser(schema as SchemaObject);
+    const parser: JTDParser = this.ajv.compileParser(schema as SchemaObject);
     return parser(body) as object;
   }
 
-  response?(body: string | Buffer | object, schema?: object): Buffer {
+  response?(body?: string | Buffer | object, schema?: object): Buffer {
+    if (!body) return Buffer.from('{}');
     if (!schema) {
       Logger.trace('response() no schema.', { bodyType: typeof body });
       if (typeof body === 'string') return Buffer.from(body, 'utf-8');

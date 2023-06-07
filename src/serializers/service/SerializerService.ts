@@ -1,7 +1,5 @@
 import { Logger } from '../../utils/Logger';
-import { HttpRequest } from '../../endpoints/model/HttpRequest';
-import { HttpResponse } from '../../endpoints/model/HttpResponse';
-import { HttpSerializer } from '../model/HttpSerializer';
+import { HttpRequest, HttpResponse, HttpSerializer } from '@';
 import { JSONSerializer } from './serializers/JSONSerializer';
 import { URLEncodedSerializer } from './serializers/URLEncodedSerializer';
 

@@ -1,6 +1,4 @@
-import { HttpRequest } from './HttpRequest';
-import { HttpResponse } from './HttpResponse';
-import { LambdaContext } from './LambdaContext';
+import { HttpRequest, HttpResponse, LambdaContext } from '@';
 
 export interface HttpEndpointFunction extends Function {
     /**

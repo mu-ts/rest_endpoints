@@ -4,10 +4,10 @@ import { HttpAction } from '../model/HttpAction';
 /**
  *
  * @param path definition for this GET action mapping. This would include the path names ie, /pathy/{id}
- * @param deserialize
+ * @param serialize
  * @returns
  */
-export function get(path: string, deserialize?: object) {
+export function get(path: string, serialize?: object) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     /**
      * De-serialize the request body into an object for the validators to use.
@@ -18,7 +18,7 @@ export function get(path: string, deserialize?: object) {
       action: HttpAction.GET,
       functionName: propertyKey,
       function: descriptor.value,
-      deserialize
+      serialize
     });
 
     return descriptor;
