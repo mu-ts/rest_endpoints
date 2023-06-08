@@ -36,10 +36,13 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
   }
 
   public format(errors: ErrorObject[], request: HttpRequest<object>): HttpResponse {
-
+    console.log(`AjvRequestValidator -- errors: ${JSON.stringify(errors)}`);
     return {
       body: {
-        message: errors
+        path: request.path,
+        action: request.action,
+        errors: errors
+          .filter(({ message}: ErrorObject) => message !== 'must match \"then\" schema')
           .map(({
             keyword,
             message,
@@ -64,8 +67,6 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
               type: data ? typeof data : undefined,
             } : undefined,
           }))
-          .map(({ message, data }) => (message || data) as string)
-          .filter((message: string) => message !== 'must match \"then\" schema'),
       },
       statusCode: 400,
       headers: {
