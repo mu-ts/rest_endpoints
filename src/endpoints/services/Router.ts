@@ -131,7 +131,7 @@ export class Router {
           response._valid = true;
           response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
 
-          Logger.trace('Router.handler() Response after execution.', { response });
+          Logger.trace('Router.handler() Response after execution.', { response: JSON.stringify(response, undefined, 3) });
         }
 
       } catch (error) {
@@ -165,7 +165,8 @@ export class Router {
         // remove after check above
         delete response._valid;
 
-        response.headers['Content-Type'] = responseSerializer.contentType();
+        response.headers = { ...response.headers, ...{ 'Content-Type': responseSerializer.contentType() || 'application/json' } };
+
         if (responseSerializer.isBase64 && responseSerializer.isBase64()) {
           response.body = (response.body as Buffer).toString('base64');
           response.isBase64Encoded = true;
