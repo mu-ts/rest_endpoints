@@ -1,28 +1,12 @@
+/* Reference: https://www.typescriptlang.org/docs/handbook/compiler-options.html */
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES2022",
-    "moduleResolution": "Node",
-    "outDir": "lib",
-    "declaration": true,
-    // "esModuleInterop": true,
-    "experimentalDecorators": true,
+    // Do not include 'experimental decorators' it breaks compilation.
     "forceConsistentCasingInFileNames": true,
-    // "isolatedModules": false,
-    // "strict": true,
-    // "noImplicitAny": true,
-    // "useUnknownInCatchVariables": false,
-    // "inlineSourceMap": true
-
-    "baseUrl": "src",
-    "paths": {
-      "@": [ "./" ],
-    }
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "./lib",
   },
-  "ts-node": {
-      "esm": true
-  },
-  // "lib": ["esnext"],
-  "exclude": ["node_modules", "*.spec/**/*.spec.ts"],
-  "include": ["src/**/*"]
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
