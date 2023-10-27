@@ -125,6 +125,10 @@ export class Router {
           // response = await route.function.apply(route.instance, [request, context]);
           Logger.timeStamp(loggingTrackerId);
 
+          /**
+           * marker to indicate that we can use the function 'serializer' down below
+           */
+          response._valid = true;
           response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
 
           Logger.trace('Router.handler() Response after execution.', { response });
@@ -156,7 +160,11 @@ export class Router {
        * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-payload-encodings-workflow.html
        */
       if (responseSerializer?.response) {
-        response.body = responseSerializer.response(response.body, route?.serialize);
+        response.body = responseSerializer.response(response.body, (response._valid) ? route?.serialize : undefined);
+
+        // remove after check above
+        delete response._valid;
+
         response.headers['Content-Type'] = responseSerializer.contentType();
         if (responseSerializer.isBase64 && responseSerializer.isBase64()) {
           response.body = (response.body as Buffer).toString('base64');

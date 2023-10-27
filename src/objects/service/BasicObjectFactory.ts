@@ -2,7 +2,7 @@ import { Constructable } from '../model/Constructable';
 import { ObjectFactory } from '../model/ObjectFactory';
 
 export class BasicObjectFactory implements ObjectFactory {
-  private instances: Record<string, unknown>;
+  private readonly instances: Record<string, unknown>;
 
   constructor() {
     this.instances = {};

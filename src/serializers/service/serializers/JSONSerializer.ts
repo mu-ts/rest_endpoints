@@ -18,7 +18,7 @@ export class JSONSerializer implements HttpSerializer {
 
   request?(body: string, schema?: object): object {
     if (!schema) return JSON.parse(body);
-    const parser: JTDParser =  this.ajv.compileParser(schema as SchemaObject);
+    const parser: JTDParser = this.ajv.compileParser(schema as SchemaObject);
     return parser(body) as object;
   }
 
@@ -27,6 +27,7 @@ export class JSONSerializer implements HttpSerializer {
     const metadata: Record<string, any> | undefined = body.constructor[SerializerService.PREFIX];
     const redacted: FieldRedacted[] | undefined = metadata?.[KEY];
 
+    if (!body) return Buffer.from('{}');
     if (!schema) {
       Logger.trace('response() no schema.', { bodyType: typeof body });
       if (typeof body === 'string') return Buffer.from(body, 'utf-8');

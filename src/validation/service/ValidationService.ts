@@ -23,7 +23,7 @@ export class ValidationService {
     if (this.validator) {
       const errors: any[] | undefined = this.validator.validate(request, schema);
 
-      Logger.debug('ValidationService.validate() results of validation.', { errors });
+      Logger.debug('ValidationService.validate()', 'results of validation.', { errors: JSON.stringify(errors, undefined, 3) });
 
       if (errors) {
         if (this.validator.format) return this.validator.format(errors, request);

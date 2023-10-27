@@ -8,4 +8,5 @@ export interface HttpResponse {
     statusCode?: number;
     statusDescription?: string;
     cookies?: string[];
+    _valid?: boolean;
 }
