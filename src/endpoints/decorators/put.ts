@@ -10,21 +10,23 @@ import { HttpAction } from '../model/HttpAction';
  * @returns
  */
 export function put(path: string, validation?: object, deserialize?: object, serialize?: object) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (originalMethod: any, context: ClassMethodDecoratorContext) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
+    const { name } = context
+
     Router.register({
       path,
-      clazz: target.constructor,
+      clazz: originalMethod.constructor,
+      functionName: name as string,
+      function: originalMethod,
       action: HttpAction.PUT,
-      functionName: propertyKey,
-      function: descriptor.value,
       validation,
       deserialize,
       serialize
     });
 
-    return descriptor;
+    return originalMethod;
   };
 }

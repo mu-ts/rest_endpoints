@@ -9,16 +9,14 @@ import { Logger } from '../../utils/Logger';
  * @returns
  */
 export function cors(options?: Partial<HttpCORS>) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (originalMethod: any, context: ClassMethodDecoratorContext) {
     /**
      * Wrap the current function so that the response will have
      * headers added, or updated, with the cors configuration
      * provided or established within defaults.
      */
-    const targetMethod = descriptor.value;
-
-    descriptor.value = async function () {
-      const response: HttpResponse = await targetMethod.apply(this, arguments);
+    return async function (...args) {
+      const response: HttpResponse = await originalMethod.apply(this, args);
 
       // TODO how to detect all the methods for the same path?
 
@@ -32,7 +30,5 @@ export function cors(options?: Partial<HttpCORS>) {
 
       return response;
     };
-
-    return descriptor;
   };
   }

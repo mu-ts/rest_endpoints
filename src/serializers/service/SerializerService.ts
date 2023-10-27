@@ -7,6 +7,8 @@ import { URLEncodedSerializer } from './serializers/URLEncodedSerializer';
 
 export class SerializerService {
 
+  public static readonly PREFIX: string = 'mu-ts/endpoints';
+
   private readonly serializers: { [key: string]: HttpSerializer };
 
   constructor() {

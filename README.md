@@ -66,6 +66,10 @@ class MyObjectFactory implements ObjectFactory {
 } 
 ```
 
+# Interceptors
+
+You can add response and request interceptors to allow intervention before execution, or before response.
+
 # Validation
 
 ```

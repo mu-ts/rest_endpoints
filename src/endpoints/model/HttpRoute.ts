@@ -1,4 +1,4 @@
-import { Constructable } from 'objects/model/Constructable';
+import { Constructable } from '../../objects/model/Constructable';
 import { HttpAction } from './HttpAction';
 import { HttpEndpointFunction } from './HttpEndpointFunction';
 

@@ -88,7 +88,7 @@ export class HttpHandler {
       Logger.trace('HttpHandler.router() Creating instance.', {
         serializer: this.serializerService.constructor.name,
         objectFactory: this._objectFactory.constructor.name,
-        validationService: this.validationService.constructor.name
+        validationService: this.validationService.constructor.name,
       });
       if (!this._router) this._router = new Router(this.serializerService, this._objectFactory, this.validationService);
     }
