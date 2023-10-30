@@ -5,6 +5,5 @@
  * @returns
  */
 export function json(path: string): any {
-  const json: any = require(path);
-  return json;
+  return import(path);
 }

@@ -11,12 +11,10 @@ import { HttpAction } from '../model/HttpAction';
  * @returns
  */
 export function post(path: string, validation?: object, deserialize?: object, serialize?: object) {
-  return function (originalMethod: any, context: ClassMethodDecoratorContext) {
+  return function (originalMethod: any, { name }: ClassMethodDecoratorContext) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    const { name } = context
-
     Router.register({
       path,
       clazz: originalMethod.constructor,
@@ -25,7 +23,7 @@ export function post(path: string, validation?: object, deserialize?: object, se
       action: HttpAction.POST,
       validation,
       deserialize,
-      serialize
+      serialize,
     });
 
     return originalMethod;

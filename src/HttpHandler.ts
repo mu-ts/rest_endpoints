@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { Router } from './endpoints/services/Router';
 import { SerializerService } from './serializers/service/SerializerService';
 import { Validator } from './validation/model/Validator';
@@ -14,6 +15,7 @@ import { Logger } from './utils/Logger';
  * Entrypoint handler for lambda functions accepting http requests.
  */
 export class HttpHandler {
+  // eslint-disable-next-line no-use-before-define
   private static _instance: HttpHandler | undefined;
 
   private validationService?: ValidationService;
@@ -58,7 +60,7 @@ export class HttpHandler {
    */
   public serializer(serializer: HttpSerializer): HttpHandler {
     if (!this.serializerService) this.serializerService = new SerializerService();
-    this.serializerService.register( serializer);
+    this.serializerService.register(serializer);
     return this;
   }
 
@@ -75,7 +77,7 @@ export class HttpHandler {
    * @param headers to set as defaults.
    * @returns
    */
-  public headers(headers: {[key: string]: string}): HttpHandler {
+  public headers(headers: Record<string, string>): HttpHandler {
     Headers.default(headers);
     return this;
   }

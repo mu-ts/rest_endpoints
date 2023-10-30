@@ -1,6 +1,4 @@
 export abstract class Logger {
-  private constructor() {}
-
   public static trace(...args: any[]): void {
     if (this.isLevel(0)) console.trace(args);
   }

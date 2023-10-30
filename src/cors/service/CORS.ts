@@ -1,10 +1,7 @@
 import { HttpCORS } from '../model/HttpCORS';
 
 export abstract class CORS {
-
   private static cors: HttpCORS | undefined;
-
-  private constructor() {}
 
   public static configure(cors: HttpCORS) {
     this.cors = cors;
@@ -17,13 +14,16 @@ export abstract class CORS {
    * @param cors to apply the CORS headers to
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
    */
-  public static apply(headers: {[key: string]: string}, cors?: HttpCORS): {[key: string]: string} {
+  public static apply(headers: Record<string, string>, cors?: HttpCORS): Record<string, string> {
     if (!cors && !this.cors) return headers;
-    const source: HttpCORS = { ...this.cors || {}, ...cors || {} };
-    const { allowOrigin, vary, exposeHeaders, maxAge, allowCredentials, allowHeaders, allowedMethods, requestMethod } = source;
+
+    const {
+      allowOrigin, vary, exposeHeaders, maxAge, allowCredentials, allowHeaders, allowedMethods, requestMethod,
+    }: HttpCORS = { ...this.cors || {}, ...cors || {} };
+
     if (allowOrigin) {
-        headers['Access-Control-Allow-Origin'] = allowOrigin;
-        if (vary) headers['Vary'] = vary;
+      headers['Access-Control-Allow-Origin'] = allowOrigin;
+      if (vary) headers.Vary = vary;
     }
     if (exposeHeaders) headers['Access-Control-Expose-Headers'] = exposeHeaders.join(', ');
     if (allowedMethods) headers['Access-Control-Allow-Methods'] = allowedMethods.join(', ');

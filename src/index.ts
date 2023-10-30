@@ -27,7 +27,6 @@ export * from './cors/decorator/cors';
 export * from './objects/model/ObjectFactory';
 export * from './objects/model/Constructable';
 
-
 /**
  * Entrypoint object.
  */

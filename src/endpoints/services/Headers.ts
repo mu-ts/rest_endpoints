@@ -1,8 +1,5 @@
 export abstract class Headers {
-
-  private static defaults: {[key: string]: string} = {};
-
-  private constructor() {}
+  private static defaults: Record<string, string> = {};
 
   /**
    * Values set here can be overridden by the lambda implementation.
@@ -16,12 +13,11 @@ export abstract class Headers {
    *
    * @param defaults to set on every request.
    */
-  public static default(defaults: {[key: string]: string}) {
+  public static default(defaults: Record<string, string>) {
     this.defaults = defaults;
   }
 
-
-  public static get( overrides?: {[key: string]: string} ): {[key: string]: string} {
-      return { ...this.defaults, ...overrides || {} };
+  public static get(overrides?: Record<string, string>): Record<string, string> {
+    return { ...this.defaults, ...overrides || {} };
   }
 }

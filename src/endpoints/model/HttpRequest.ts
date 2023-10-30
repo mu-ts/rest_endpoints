@@ -3,10 +3,10 @@ export interface HttpRequest<T> {
     resource: string;
     path: string;
     body?: T;
-    headers?: { [key: string]: string };
-    pathParameters?: { [key: string]: string };
-    queryString?: { [key: string]: string };
+    headers?: Record<string, string>;
+    pathParameters?: Record<string, string>;
+    queryString?: Record<string, string>;
     cookies?: string[];
-    requestContext: { [key: string]: any, authorizer?: { [key: string]: string } };
-    authorizer?: { [key: string]: string };
+    requestContext: { [key: string]: any, authorizer?: Record<string, string> };
+    authorizer?: Record<string, string>;
 }

@@ -10,12 +10,10 @@ import { HttpAction } from '../model/HttpAction';
  * @returns
  */
 export function patch(path: string, validation?: object, deserialize?: object, serialize?: object) {
-  return function (originalMethod: any, context: ClassMethodDecoratorContext) {
+  return function (originalMethod: any, { name }: ClassMethodDecoratorContext) {
     /**
      * De-serialize the request body into an object for the validators to use.
      */
-    const { name } = context
-
     Router.register({
       path,
       clazz: originalMethod.constructor,
@@ -24,7 +22,7 @@ export function patch(path: string, validation?: object, deserialize?: object, s
       action: HttpAction.PATCH,
       validation,
       deserialize,
-      serialize
+      serialize,
     });
 
     return originalMethod;

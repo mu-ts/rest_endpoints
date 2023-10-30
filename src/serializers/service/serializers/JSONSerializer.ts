@@ -23,7 +23,6 @@ export class JSONSerializer implements HttpSerializer {
   }
 
   response?(body: string | Buffer | object, schema?: object): Buffer {
-
     const metadata: Record<string, any> | undefined = body.constructor[SerializerService.PREFIX];
     const redacted: FieldRedacted[] | undefined = metadata?.[KEY];
 
@@ -34,12 +33,12 @@ export class JSONSerializer implements HttpSerializer {
       if (Buffer.isBuffer(body)) return body;
       return Buffer.from(JSON.stringify(body, (key:string, value: any) => {
         if (!redacted || value === undefined) return value;
-          const redactedField: FieldRedacted | undefined = redacted.find(({field}: FieldRedacted) => field === key);
-          // TODO when conditional logic added for redacting, the logic for it will need to be added here.
-          // TODO Need to think about how @mu-ts/serialization should be utilized, if at all. How objects get persisted vs how
-          //      they get publicly returned is often quite different.
-          if (redactedField) return undefined;
-          return value;
+        const redactedField: FieldRedacted | undefined = redacted.find(({ field }: FieldRedacted) => field === key);
+        // TODO when conditional logic added for redacting, the logic for it will need to be added here.
+        // TODO Need to think about how @mu-ts/serialization should be utilized, if at all. How objects get persisted vs how
+        //      they get publicly returned is often quite different.
+        if (redactedField) return undefined;
+        return value;
       }), 'utf-8');
     }
 

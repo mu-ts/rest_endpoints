@@ -6,7 +6,7 @@ export interface RequestContext {
   // since it ends up the same and avoids breaking users that are testing the property.
   // This lets us allow parameterizing the authorizer for proxy events that know what authorizer
   // context values they have.
-  authorizer: { [key: string]: string };
+  authorizer: Record<string, string>;
   connectedAt?: number | undefined;
   connectionId?: string | undefined;
   domainName?: string | undefined;

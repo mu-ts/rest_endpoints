@@ -6,10 +6,9 @@ import { JSONSerializer } from './serializers/JSONSerializer';
 import { URLEncodedSerializer } from './serializers/URLEncodedSerializer';
 
 export class SerializerService {
-
   public static readonly PREFIX: string = 'mu-ts/endpoints';
 
-  private readonly serializers: { [key: string]: HttpSerializer };
+  private readonly serializers: Record<string, HttpSerializer>;
 
   constructor() {
     this.serializers = {};
@@ -41,7 +40,7 @@ export class SerializerService {
    * @param response
    */
   public forResponse(request: HttpRequest<object>, response: HttpResponse): HttpSerializer | undefined {
-    const accept: string = request.headers?.['Accept'] || request.headers?.['accept'] || '';
+    const accept: string = request.headers.Accept || request.headers.accept || '';
     const contentType: string = response.headers?.['Content-Type'] || response.headers?.['content-type'] || '';
     Logger.trace('SerializerService.forResponse()', { contentType });
     const serializer: HttpSerializer | undefined = this.findSerializer(...this.toArray(accept), ...this.toArray(contentType));
@@ -59,7 +58,7 @@ export class SerializerService {
     const mimeType: string | undefined = [...mimeTypes, 'application/json']
       .filter(this.uniqueFilter)
       .filter(this.badValueFilter)
-      .find((mimeType: string) => supportedMimeTypes.includes(mimeType));
+      .find((_mimeType: string) => supportedMimeTypes.includes(_mimeType));
 
     Logger.trace('SerializerService.findSerializer()', { mimeType });
 
@@ -73,7 +72,7 @@ export class SerializerService {
   private toArray(headerValue: string): string[] {
     return headerValue
       .split(',')
-      .map((header: string) => header.indexOf(';') !== -1 ? header.substring(0, header.indexOf(';')) : header)
+      .map((header: string) => (header.indexOf(';') !== -1 ? header.substring(0, header.indexOf(';')) : header))
       .map((header: string) => header.trim().toLocaleLowerCase());
   }
 
@@ -81,7 +80,7 @@ export class SerializerService {
     return self.indexOf(value) === index;
   }
 
-  private badValueFilter(value: string, index: number, self: string[]) {
+  private badValueFilter(value: string) {
     return value !== '' && value !== undefined;
   }
 }

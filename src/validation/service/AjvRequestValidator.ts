@@ -1,17 +1,16 @@
 import Ajv, { ErrorObject, Options, ValidateFunction } from 'ajv';
-import { HttpRequest } from '../../endpoints/model/HttpRequest';
-import { Validator } from '../model/Validator';
-import { HttpResponse } from '../../endpoints/model/HttpResponse';
-
 import ajvErrors from 'ajv-errors';
 import ajvFormats from 'ajv-formats';
 import ajvKeywords from 'ajv-keywords';
+import { HttpRequest } from '../../endpoints/model/HttpRequest';
+import { Validator } from '../model/Validator';
+import { HttpResponse } from '../../endpoints/model/HttpResponse';
 
 export class AjvRequestValidator implements Validator<ErrorObject> {
   private static readonly UUID_REGEX = /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 
   constructor(
-    private readonly ajv: Ajv = new Ajv({ allErrors: true, validateFormats: false, strict: false } as Options)
+    private readonly ajv: Ajv = new Ajv({ allErrors: true, validateFormats: false, strict: false } as Options),
   ) {
     this.ajv.addKeyword({
       keyword: 'isUUID',
@@ -70,11 +69,11 @@ export class AjvRequestValidator implements Validator<ErrorObject> {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
-      }
+      },
     };
   }
 
   private get(path: string, payload: any) {
-    return path?.split('.').reduce((accumulator: { [key: string]: any | undefined }, key: string) => (accumulator[key] === undefined ? accumulator : accumulator[key]), payload as { [key: string]: any | undefined });
+    return path?.split('.').reduce((accumulator: Record<string, unknown>, key: string) => (accumulator[key] === undefined ? accumulator : accumulator[key]), payload as Record<string, unknown>);
   }
 }

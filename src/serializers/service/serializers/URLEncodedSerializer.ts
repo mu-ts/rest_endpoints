@@ -1,7 +1,6 @@
 import { HttpSerializer } from '../../model/HttpSerializer';
 
 export class URLEncodedSerializer implements HttpSerializer {
-
   contentType(): string {
     return 'application/x-www-form-urlencoded';
   }
@@ -29,7 +28,7 @@ export class URLEncodedSerializer implements HttpSerializer {
     if (typeof body === 'string') return Buffer.from(body, 'utf-8');
     if (Buffer.isBuffer(body)) return body;
     return Buffer.from(Object.keys(body)
-      .map((key: string) => `${key}=${encodeURIComponent(body[key] as string)}`)
+      .map((key: string) => `${key}=${encodeURIComponent(body[key])}`)
       .join('&'), 'utf-8');
   }
 }

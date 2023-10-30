@@ -11,16 +11,16 @@ import { HttpRequest } from '../model/HttpRequest';
  * @see https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
  */
 export class EventNormalizer {
-  constructor() {
-  }
-
   public static normalize(event: any): HttpRequest<string> {
     if (event.version === '2.0') {
-      const { requestContext, routeKey, rawPath, body, headers, queryStringParameters, cookies, pathParameters, } = event;
-      const { http, authorizer }  = requestContext;
+      const {
+        requestContext, routeKey, rawPath, body, headers, queryStringParameters, cookies, pathParameters,
+      } = event;
+      const { http: { method: httpMethod }, authorizer } = requestContext;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [ignore, resource] = routeKey.split(' ');
       return {
-        action: http.method,
+        action: httpMethod,
         resource,
         path: rawPath,
         body,
@@ -31,20 +31,21 @@ export class EventNormalizer {
         requestContext,
         authorizer,
       };
-    } else {
-      const { resource, path, httpMethod, headers, queryStringParameters, pathParameters, body, requestContext } = event;
-      const { authorizer }  = requestContext;
-      return {
-        action: httpMethod,
-        resource,
-        path,
-        body,
-        headers,
-        pathParameters,
-        queryString: queryStringParameters,
-        requestContext,
-        authorizer,
-      };
     }
+    const {
+      resource, path, httpMethod, headers, queryStringParameters, pathParameters, body, requestContext,
+    } = event;
+    const { authorizer } = requestContext;
+    return {
+      action: httpMethod,
+      resource,
+      path,
+      body,
+      headers,
+      pathParameters,
+      queryString: queryStringParameters,
+      requestContext,
+      authorizer,
+    };
   }
 }

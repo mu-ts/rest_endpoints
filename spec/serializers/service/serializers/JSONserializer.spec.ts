@@ -24,14 +24,13 @@ describe('JSONSerializer', () => {
     it('should validate and parse JSON using provided schema', () => {
       const requestBody = '{"name": "John", "age": 30}';
       const schema = {
-        optionalProperties: {
+        properties: {
           name: { type: 'string' },
-          age: { type: 'integer' },
+          age: { type: 'int32' },
         },
-        required: ['name', 'age'],
       };
       const parsedBody = jsonSerializer.request(requestBody, schema) as object;
-      expect(parsedBody).to.deep.equal({ name: 'John', age: 30 });
+      expect(parsedBody).to.deep.equal({name: 'John', age: 30});
     });
   });
 
@@ -48,9 +47,8 @@ describe('JSONSerializer', () => {
       const schema = {
         properties: {
           name: { type: 'string' },
-          age: { type: 'integer' },
+          age: { type: 'int32' },
         },
-        required: ['name', 'age'],
       };
       const responseBuffer = jsonSerializer.response(responseBody, schema) as Buffer;
       const responseString = responseBuffer.toString('utf-8');

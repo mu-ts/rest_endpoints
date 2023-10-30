@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { HttpRequest } from '../model/HttpRequest';
 import { HttpResponse } from '../model/HttpResponse';
 import { HttpRoute } from '../model/HttpRoute';
@@ -11,25 +12,25 @@ import { ValidationService } from '../../validation/service/ValidationService';
 import { ObjectFactory } from '../../objects/model/ObjectFactory';
 
 export class Router {
-
-  private static readonly _routes: { [key: string]: HttpRoute } = {};
+  private static readonly _routes: Record<string, HttpRoute> = {};
 
   /**
    *
-   * @param normalizer used to format the event received by the lambda function.
+   * @param serializerService
+   * @param objectFactory
+   * @param validationService
    */
   constructor(
-    private readonly serializerService: SerializerService,
-    private readonly objectFactory: ObjectFactory,
-    private readonly validationService?: ValidationService,
+      private readonly serializerService: SerializerService,
+      private readonly objectFactory: ObjectFactory,
+      private readonly validationService?: ValidationService,
   ) {
     Logger.trace('Router() constructed.');
   }
 
-  public static routes(): { [key: string]: HttpRoute } {
+  public static routes(): Record<string, HttpRoute> {
     return this._routes;
   }
-
 
   /**
    *
@@ -131,11 +132,10 @@ export class Router {
           response._valid = true;
           response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
 
-          Logger.trace('Router.handler() Response after execution.', { response });
+          Logger.trace('Router.handler() Response after execution.', { response: JSON.stringify(response, undefined, 3) });
         }
-
       } catch (error) {
-        Logger.error('Router.handler() HttpEndpointFunction implementation threw an exception.', error);
+        Logger.error('Router.handler() HttpEndpointFunction implementation threw an exception.', { error });
         if (error.message.includes('schema is invalid')) {
           response = {
             body: { message: 'Validation schema for this route is invalid. Check your schema using a JSON schema validator.' },
@@ -165,7 +165,7 @@ export class Router {
         // remove after check above
         delete response._valid;
 
-        response.headers['Content-Type'] = responseSerializer.contentType();
+        response.headers = { ...response.headers, ...{ 'Content-Type': responseSerializer.contentType() || 'application/json' } };
         if (responseSerializer.isBase64 && responseSerializer.isBase64()) {
           response.body = (response.body as Buffer).toString('base64');
           response.isBase64Encoded = true;
@@ -174,8 +174,7 @@ export class Router {
           response.isBase64Encoded = false;
         }
         Logger.trace('Router.handler() Response body serialized.', response.body);
-      }
-      else Logger.warn('Router.handler() No response serializer found.');
+      } else Logger.warn('Router.handler() No response serializer found.');
     }
 
     response.headers = { ...Headers.get(), ...response.headers };

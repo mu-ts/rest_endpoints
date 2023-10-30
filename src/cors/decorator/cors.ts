@@ -5,10 +5,11 @@ import { Logger } from '../../utils/Logger';
 
 /**
  *
- * @param path definition for this GET action mapping. This would include the path names ie, /pathy/{id}
  * @returns
+ * @param options
  */
 export function cors(options?: Partial<HttpCORS>) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return function (originalMethod: any, context: ClassMethodDecoratorContext) {
     /**
      * Wrap the current function so that the response will have
@@ -19,16 +20,12 @@ export function cors(options?: Partial<HttpCORS>) {
       const response: HttpResponse = await originalMethod.apply(this, args);
 
       // TODO how to detect all the methods for the same path?
-
-      let headers: {[key: string]: string} = response.headers || {};
+      const { headers = {} }: HttpResponse = response;
 
       Logger.debug('cors() - Applying cors headers to the response.');
-
-      headers = CORS.apply(headers, options);
-
-      response.headers = headers;
+      response.headers = CORS.apply(headers, options);
 
       return response;
     };
   };
-  }
+}
