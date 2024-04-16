@@ -129,7 +129,7 @@ export class Router {
            * marker to indicate that we can use the function 'serializer' down below
            */
           response._valid = true;
-          response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.Accept || request.headers?.['Content-Type'] || 'application/json' } };
+          response.headers = { ...response.headers, ...{ 'Content-Type': request.headers?.['Content-Type'] || 'application/json' } };
 
           Logger.trace('Router.handler() Response after execution.', { response: JSON.stringify(response, undefined, 3) });
         }
